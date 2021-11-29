@@ -13,7 +13,7 @@ function Conversation(line_array, start, advance, next, previous) constructor {
 		label: string,
 		body: string,
 		goto: string || goto{}
-		end: boolean				conversation ends if true
+		close: boolean				conversation ends if true
 	}
 	
 	goto struct
@@ -51,29 +51,24 @@ function Conversation(line_array, start, advance, next, previous) constructor {
 
 function conversation_update(conversation) {
 	with (conversation) {
-		if (detect_start()) {
-			show_debug_message("detect start invoked!")
-			active = !active
-		}
 		if (active) {
 			// handle changing selected goto option
 			var line_current = ds_map_find_value(lines, current)
 			if (array_length(line_current.goto) > 1) {
 				if (previous_option() && selected_option > 0) {
 					selected_option -= 1
-					show_debug_message("choose previous option invoked!")
 				}
 				if (next_option() && selected_option < array_length(line_current.goto) - 1) {
 					selected_option += 1
-					show_debug_message("choose next option invoked!")
 				}
 			}
 			if (detect_advance()) {
+				if (variable_struct_exists(line_current, "close") && line_current.close) active = false
 				current = ds_map_find_value(lines, line_current.goto[selected_option].label).label
 				selected_option = 0
-				show_debug_message("detect advance invoked!")
 			}
-		}
+		} else if (detect_start()) active = !active
+		
 	}
 }
 

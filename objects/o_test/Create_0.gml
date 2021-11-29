@@ -31,7 +31,8 @@ conversation = new Conversation(
 		},
 		{
 			label: "end",
-			body: "goodbye"
+			body: "goodbye",
+			close: true
 		}
 	],
 	function() {
