@@ -1,4 +1,4 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-conversation_draw(conversation)
+dialog_draw(dialog)

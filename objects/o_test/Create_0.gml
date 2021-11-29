@@ -1,7 +1,7 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-conversation = new Conversation(
+dialog = new Dialog(
 	[
 		{
 			body: "Hello! Welcome to the example dialog."

@@ -1,27 +1,27 @@
-/// @func Conversation(lines, detect_start, detect_advance, select_next_option, select_previous_option)
-function Conversation(line_array, start, advance, next, previous) constructor {
+/* 
+line of dialog
+{
+	label: string,
+	body: string,
+	goto: string || goto{}
+	close: boolean				Dialog ends if true
+}
+	
+goto struct
+{
+	display: string		the displayed name for next line
+	label:				label of next line
+}
+*/
+
+/// @func Dialog(lines, detect_start, detect_advance, select_next_option, select_previous_option)
+function Dialog(line_array, start, advance, next, previous) constructor {
 	detect_start = start
 	detect_advance = advance
 	next_option = next
 	previous_option = previous
 	active = false
 	selected_option = 0
-	
-	/* 
-	line of dialog
-	{
-		label: string,
-		body: string,
-		goto: string || goto{}
-		close: boolean				conversation ends if true
-	}
-	
-	goto struct
-	{
-		display: string		the displayed name for next line
-		label:				label of next line
-	}
-	*/
 	
 	// ensure each line of dialog has a label
 	for (var i = 0; i < array_length(line_array); i++) {
@@ -49,8 +49,8 @@ function Conversation(line_array, start, advance, next, previous) constructor {
 	show_debug_message("line map creation complete")
 }
 
-function conversation_update(conversation) {
-	with (conversation) {
+function dialog_update(dialog) {
+	with (dialog) {
 		if (active) {
 			// handle changing selected goto option
 			var line_current = ds_map_find_value(lines, current)
@@ -72,8 +72,8 @@ function conversation_update(conversation) {
 	}
 }
 
-function conversation_draw(conversation) {
-	with (conversation) {
+function dialog_draw(dialog) {
+	with (dialog) {
 		if (active) {
 			var line = ds_map_find_value(lines, current)
 			draw_text(0, 0, line.body)

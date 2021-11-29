@@ -6,7 +6,7 @@
     "path": "mystery-game.yyp",
   },
   "resourceVersion": "1.0",
-  "name": "Conversation",
+  "name": "Dialog",
   "tags": [],
   "resourceType": "GMScript",
 }
