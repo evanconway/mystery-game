@@ -2,7 +2,6 @@
   "resources": [
     {"id":{"name":"o_test","path":"objects/o_test/o_test.yy",},"order":2,},
     {"id":{"name":"Conversation","path":"scripts/Conversation/Conversation.yy",},"order":4,},
-    {"id":{"name":"Dialog","path":"scripts/Dialog/Dialog.yy",},"order":5,},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":1,},
   ],
   "Options": [
