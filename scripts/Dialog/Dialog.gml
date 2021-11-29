@@ -24,8 +24,10 @@ function Dialog(line_array, start, advance, next, previous) constructor {
 	selected_option = 0
 	
 	// ensure each line of dialog has a label
+	var labels = ds_map_create() // for keeping track of found labels, used to ensure gotos are correct
 	for (var i = 0; i < array_length(line_array); i++) {
 		if (!variable_struct_exists(line_array[i], "label")) line_array[i].label = string(i)
+		ds_map_add(labels, line_array[i].label, undefined)
 	}
 	
 	// label of current line of dialog, used to access lines (map)
@@ -34,8 +36,16 @@ function Dialog(line_array, start, advance, next, previous) constructor {
 	// Ensure all lines have valid goto value. Goto is always an array of structs.
 	for (var i = 0; i < array_length(line_array) - 1; i++) {
 		if (!variable_struct_exists(line_array[i], "goto")) line_array[i].goto = [{ label: line_array[i + 1].label }]
+		else {
+			for (var g = 0; g < array_length(line_array[i].goto); g++) {
+				if (!variable_struct_exists(line_array[i].goto[g], "label")) throw "Dialog Error: label field missing from goto"
+				if (!ds_map_exists(labels, line_array[i].goto[g].label)) throw "Dialog Error: label for goto does not exist"
+			}
+		}
 		if (typeof(line_array[i].goto) == "string") line_array[i].goto = [{ label: line_array[i].goto }]
 	}
+	ds_map_destroy(labels)
+	
 	// final line loops to first by default 
 	var final_index = array_length(line_array) - 1
 	if (!variable_struct_exists(line_array[final_index], "goto")) line_array[final_index].goto = [{ label: line_array[0].label }]
