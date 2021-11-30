@@ -29,7 +29,7 @@
     "path": "mystery-game.yyp",
   },
   "resourceVersion": "1.0",
-  "name": "o_test",
+  "name": "o_test_dialog",
   "tags": [],
   "resourceType": "GMObject",
 }
