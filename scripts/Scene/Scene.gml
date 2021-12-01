@@ -1,13 +1,14 @@
 /* beat struct:
 {
 	label:			string,
-	onEnter:		function(),
+	on_start:		function(),
 	update:			function(),
 	draw:			function(),	// probably necessary
-	readyToLeave:	function(),
-	onLeave:		function(),
+	ready_to_end:	function(),
+	on_end:			function(),
 	goto:			string[]	// labels of other scene structs
-	selectedGoto:	int,		// index in goto array
+	selected_goto:	int,		// index in goto array
+	end_scene:		boolean		// if true, scene ends when beat ends
 }
 */
 
@@ -19,21 +20,23 @@ function __scene_check_goto(beat, existing_labels) {
 	}
 }
 
-/// @func Scene(beats_array)
+/// @func Scene(beats_array, detect_start)
 function Scene(beats_array, _detect_start) constructor {
 	detect_start = _detect_start // function that returns true if scene should start
 	active = false
 	
-	if (!is_array(beats_array)) throw "Scene Error: constructor did not receive an array"
-	if (array_length(beats_array) <= 0) throw "Scene Error: beats_array must contain at least 1 element"
+	var err = "Scene Error: "
+	
+	if (!is_array(beats_array)) throw err +"constructor did not receive an array"
+	if (array_length(beats_array) <= 0) throw err + "beats_array must contain at least 1 element"
 	
 	// ensure each beat is a struct, and has valid label
 	var labels = ds_map_create() // for keeping track of found labels, used to ensure gotos are correct
 	for (var i = 0; i < array_length(beats_array); i++) {
 		var beat = beats_array[i]
-		if (!is_struct(beat)) throw "Scene Error: beat is not a struct"
+		if (!is_struct(beat)) throw err + "beat is not a struct"
 		if (!variable_struct_exists(beat, "label")) beat.label = string(i)
-		if (!is_string(beat.label)) throw "Scene Error: beat label is not a string"
+		if (!is_string(beat.label)) throw err + "beat label is not a string"
 		ds_map_add(labels, beat.label, undefined)
 	}
 	
@@ -53,11 +56,56 @@ function Scene(beats_array, _detect_start) constructor {
 	else __scene_check_goto(beats_array[final_index], labels)
 	ds_map_destroy(labels)
 	
+	// finally, ensure supplied values for remaining beat fields are correct, or they have default values
+	var do_nothing = function() {}
+	for (var i = 0; i < array_length(beats_array); i++) {
+		var beat = beats_array[i]
+		if (!variable_struct_exists(beat, "on_start")) beat.on_start = do_nothing
+		if (!variable_struct_exists(beat, "update")) beat.update = do_nothing
+		if (!variable_struct_exists(beat, "draw")) beat.draw = do_nothing
+		if (!variable_struct_exists(beat, "ready_to_end")) beat.ready_to_end = do_nothing
+		if (!variable_struct_exists(beat, "on_end")) beat.on_end = do_nothing
+		if (!variable_struct_exists(beat, "end_scene")) beat.end_scene = false
+		
+		beat.selected_goto = 0 // no reason to allow customizable selected_goto
+		
+		if (!is_method(beat.on_start)) throw err + "beat on_start must be method function"
+		if (!is_method(beat.update)) throw err + "beat update must be method function"
+		if (!is_method(beat.draw)) throw err + "beat draw must be method function"
+		if (!is_method(beat.ready_to_end)) throw err + "beat ready_to_end must be method function"
+		if (!is_method(beat.on_end)) throw err + "beat on_end must be method function"
+		if (!is_bool(beat.end_scene)) throw err + "beat end_scene must be boolean"
+	}
+	
 	// create beat map
 	beats = ds_map_create()
 	for (var i = 0; i < array_length(beats_array); i++) {
 		ds_map_add(beats, beats_array[i].label, beats_array[i])
 	}
 	
-	show_debug_message("line map creation complete")
+	show_debug_message("beat map creation complete")
+}
+
+function scene_update(scene) {
+	with (scene) {
+		var beat = ds_map_find_value(beats, current)
+		if (active) {
+			beat.update()
+			if (beat.ready_to_end()) {
+				beat.on_end()
+				current = beat.goto[beat.selected_goto]
+				if (beat.end_scene) active = false
+				//ds_map_find_value(beats, current).on_start()
+			}
+		} else if (detect_start()) {
+			active = true
+			beat.on_start()
+		}
+	}
+}
+
+function scene_draw(scene) {
+	with (scene) {
+		if (active) ds_map_find_value(beats, current).draw()
+	}
 }
