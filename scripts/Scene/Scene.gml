@@ -67,6 +67,8 @@ function Scene(beats_array, _detect_start) constructor {
 		if (!variable_struct_exists(beat, "on_end")) beat.on_end = do_nothing
 		if (!variable_struct_exists(beat, "end_scene")) beat.end_scene = false
 		
+		show_debug_message(beat.end_scene)
+		
 		beat.selected_goto = 0 // no reason to allow customizable selected_goto
 		
 		if (!is_method(beat.on_start)) throw err + "beat on_start must be method function"
@@ -74,7 +76,9 @@ function Scene(beats_array, _detect_start) constructor {
 		if (!is_method(beat.draw)) throw err + "beat draw must be method function"
 		if (!is_method(beat.ready_to_end)) throw err + "beat ready_to_end must be method function"
 		if (!is_method(beat.on_end)) throw err + "beat on_end must be method function"
-		if (!is_bool(beat.end_scene)) throw err + "beat end_scene must be boolean"
+		
+		// in YYC, and HTML I think, booleans are still considered numbers :(
+		if (!is_bool(beat.end_scene) && !is_numeric(beat.end_scene)) throw err + "beat end_scene must be boolean"
 	}
 	
 	// create beat map
