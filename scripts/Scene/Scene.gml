@@ -12,18 +12,18 @@
 }
 */
 
-function __scene_check_goto(beat, existing_labels) {
-	if (!is_array(beat.goto)) throw "Scene Error: goto is not array"
-	for (var g = 0; g < array_length(beat.goto); g++) {
-		if (!is_string(beat.goto[g])) throw "Scene Error: entry in goto is not string"
-		if (!ds_map_exists(existing_labels, beat.goto[g])) throw "Scene Error: no beat has label in goto"
-	}
-}
-
 /// @func Scene(beats_array, detect_start)
 function Scene(beats_array, _detect_start) constructor {
 	detect_start = _detect_start // function that returns true if scene should start
 	active = false
+	
+	var check_goto = function(beat, existing_labels) {
+		if (!is_array(beat.goto)) throw "Scene Error: goto is not array"
+		for (var g = 0; g < array_length(beat.goto); g++) {
+			if (!is_string(beat.goto[g])) throw "Scene Error: entry in goto is not string"
+			if (!ds_map_exists(existing_labels, beat.goto[g])) throw "Scene Error: no beat has label in goto"
+		}
+	}
 	
 	var err = "Scene Error: "
 	
@@ -47,13 +47,13 @@ function Scene(beats_array, _detect_start) constructor {
 	for (var i = 0; i < array_length(beats_array) - 1; i++) {
 		var beat = beats_array[i]
 		if (!variable_struct_exists(beat, "goto")) beat.goto = [ beats_array[i + 1].label ]
-		else __scene_check_goto(beat, labels)
+		else check_goto(beat, labels)
 	}
 	
 	// Ensure final beat is valid, and that it loops to first beat by default.
 	var final_index = array_length(beats_array) - 1
 	if (!variable_struct_exists(beats_array[final_index], "goto")) beats_array[final_index].goto = [ beats_array[0].label ]
-	else __scene_check_goto(beats_array[final_index], labels)
+	else check_goto(beats_array[final_index], labels)
 	ds_map_destroy(labels)
 	
 	// finally, ensure supplied values for remaining beat fields are correct, or they have default values
@@ -96,10 +96,9 @@ function scene_update(scene) {
 		if (active) {
 			beat.update()
 			if (beat.ready_to_end()) {
-				beat.on_end()
 				current = beat.goto[beat.selected_goto]
+				beat.on_end()
 				if (beat.end_scene) active = false
-				//ds_map_find_value(beats, current).on_start()
 			}
 		} else if (detect_start()) {
 			active = true
