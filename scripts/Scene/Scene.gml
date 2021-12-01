@@ -67,9 +67,7 @@ function Scene(beats_array, _detect_start) constructor {
 		if (!variable_struct_exists(beat, "on_end")) beat.on_end = do_nothing
 		if (!variable_struct_exists(beat, "end_scene")) beat.end_scene = false
 		
-		show_debug_message(beat.end_scene)
-		
-		beat.selected_goto = 0 // no reason to allow customizable selected_goto
+		beat.selected_goto = 0 // no reason to allow customizable selected_goto start value
 		
 		if (!is_method(beat.on_start)) throw err + "beat on_start must be method function"
 		if (!is_method(beat.update)) throw err + "beat update must be method function"
@@ -86,8 +84,6 @@ function Scene(beats_array, _detect_start) constructor {
 	for (var i = 0; i < array_length(beats_array); i++) {
 		ds_map_add(beats, beats_array[i].label, beats_array[i])
 	}
-	
-	show_debug_message("beat map creation complete")
 }
 
 function scene_update(scene) {
