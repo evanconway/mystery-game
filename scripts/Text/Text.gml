@@ -11,8 +11,8 @@ function Text(_string) constructor {
 		char_array[i] = {
 			character:	char,
 			style:		new Style(),
-			x:			0,
-			y:			0,
+			X:			0,
+			Y:			0,
 			width:		string_width(char),
 			height:		string_height(char),
 		}
@@ -80,8 +80,8 @@ function Text(_string) constructor {
 			_x = 0
 			_curr_line = c.style.line
 		}
-		c.x = _x
-		c.y = _y
+		c.X = _x
+		c.Y = _y
 		_x += c.width
 	}
 	
@@ -95,7 +95,6 @@ function Text(_string) constructor {
 		index_end:		0	// index in char array, inclusive
 	}
 	var curr_link = linked_list
-	// at first, all characters will have same style, so only thing creating different links is line breaks
 	for (var i = 1; i < array_length(char_array); i++) {
 		var c = char_array[i]
 		if (curr_link.style.equals(c.style)) {
@@ -125,8 +124,8 @@ function text_draw(x, y, text) {
 			draw_set_font(style.font)
 			draw_set_color(style.color)
 			draw_set_alpha(style.alpha)
-			var _x = x + char_array[curr_link.index_start].x + style.offset_x
-			var _y = y + char_array[curr_link.index_start].y + style.offset_y
+			var _x = x + char_array[curr_link.index_start].X + style.offset_x
+			var _y = y + char_array[curr_link.index_start].Y + style.offset_y
 			draw_text_transformed(_x, _y, curr_link.text, style.scale_x, style.scale_y, style.angle)
 			curr_link = curr_link.next
 		}
