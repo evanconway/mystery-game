@@ -202,7 +202,14 @@ function Text(_string) constructor {
 
 	static get_start_cut_at_index = function(index) {
 		var curs = linked_list
-		while (index < curs.index_start) curs = curs.next
+		var searching = true
+		while (searching) {
+			if (index >= curs.index_start && index <= curs.index_end) {
+				searching = false
+			} else {
+				curs = curs.next
+			}
+		}
 		if (curs.index_start == index) {
 			return curs
 		} else {
@@ -279,6 +286,35 @@ function Text(_string) constructor {
 	}
 	
 	// temporary style setters (end index is inclusive)
+	/*
+	font = f_text_default
+	scale_x = 1
+	scale_y = 1
+	angle = 0
+	alpha = 1
+	line = -1
+	*/
+	
+	static set_offset_x = function(start_index, end_index, offset_x) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.offset_x = offset_x
+			curs = curs.next
+		}
+		curs.style.offset_x = offset_x
+	}
+	
+	static set_offset_y = function(start_index, end_index, offset_y) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.offset_y = offset_y
+			curs = curs.next
+		}
+		curs.style.offset_y = offset_y
+	}
+	
 	static set_color = function(start_index, end_index, color) {
 		var curs = get_start_cut_at_index(start_index)
 		var stop = get_end_cut_at_index(end_index)
@@ -291,6 +327,7 @@ function Text(_string) constructor {
 }
 
 function text_draw(x, y, text) {
+	var links_drawn = 0
 	with (text) {
 		var curr_link = linked_list
 		while (curr_link != undefined) {
@@ -302,6 +339,10 @@ function text_draw(x, y, text) {
 			var _y = y + char_array[curr_link.index_start].Y + style.offset_y
 			draw_text_transformed(_x, _y, curr_link.text, style.scale_x, style.scale_y, style.angle)
 			curr_link = curr_link.next
+			links_drawn++
 		}
 	}
+	draw_set_font(f_text_default)
+	draw_set_color(c_white)
+	draw_text(x, y - 20, "links drawn: " + string(links_drawn))
 }

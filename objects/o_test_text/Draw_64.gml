@@ -59,6 +59,8 @@ if (keyboard_check_pressed(ord("R"))) {
 }
 
 text.set_color(6, 22, c_yellow)
+text.set_offset_x(8, 15, -5)
+text.set_offset_y(18, 23, 5)
 
 draw_set_color(c_lime)
 draw_text(0, 0, fps_real)
