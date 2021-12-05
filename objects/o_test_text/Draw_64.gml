@@ -6,6 +6,7 @@ if (keyboard_check_pressed(vk_left)) {
 	width -= adjust;
 	text = new Text(source_string, width)
 }
+
 if (keyboard_check_pressed(vk_right)) {
 	width += adjust
 	text = new Text(source_string, width)
@@ -37,6 +38,24 @@ if (keyboard_check_pressed(ord("O"))) {
 		text.set_base_offset_x(5, 33, -10)
 		text.set_base_offset_y(35, 43, 20)
 	}
+}
+
+if (keyboard_check_pressed(ord("C"))) {
+	toggle_color = !toggle_color
+	if (toggle_color) text.set_base_color(10, 27, c_white)
+	else text.set_base_color(10, 27, c_blue)
+}
+
+if (keyboard_check_pressed(ord("A"))) {
+	toggle_alpha = !toggle_alpha
+	if (toggle_alpha) text.set_base_alpha(18, 23, 1)
+	else text.set_base_alpha(18, 23, 0.3)
+}
+
+if (keyboard_check_pressed(ord("R"))) {
+	toggle_angle = !toggle_angle
+	if (toggle_angle) text.set_base_angle(2, 15, 0)
+	else text.set_base_angle(2, 15, 20)
 }
 
 draw_set_color(c_lime)

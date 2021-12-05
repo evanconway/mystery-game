@@ -8,3 +8,6 @@ text = new Text(source_string, width)
 toggle_font = true
 toggle_scale = true
 toggle_offset = true
+toggle_color = true
+toggle_alpha = true
+toggle_angle = true

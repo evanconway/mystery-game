@@ -183,6 +183,27 @@ function Text(_string) constructor {
 		}
 		generate_linked_list()
 	}
+	
+	static set_base_color = function(start_index, end_index, color) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.color = color
+		}
+		generate_linked_list()
+	}
+	
+	static set_base_angle = function(start_index, end_index, angle) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.angle = angle
+		}
+		generate_linked_list()
+	}
+	
+	static set_base_alpha = function(start_index, end_index, alpha) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.alpha = alpha
+		}
+		generate_linked_list()
+	}
 }
 
 function text_draw(x, y, text) {
