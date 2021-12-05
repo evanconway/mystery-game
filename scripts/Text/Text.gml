@@ -105,7 +105,6 @@ function Text(_string) constructor {
 		linked_list = {
 			text:			char_array[0].character,
 			style:			char_array[0].style.copy(),
-			previous:		undefined,
 			next:			undefined,
 			index_start:	0,	// index in char array
 			index_end:		0	// index in char array, inclusive
@@ -120,7 +119,6 @@ function Text(_string) constructor {
 				var new_link = {
 					text:			c.character,
 					style:			c.style.copy(),
-					previous:		curr_link,
 					next:			undefined,
 					index_start:	i,
 					index_end:		0
@@ -194,29 +192,41 @@ function Text(_string) constructor {
 		generate_linked_list()
 	}
 	
-	
 	/*
-	Makes a separation in the linked list at the given index so that
-	given index is the start of a new link. Returns said link.
+	Both get cut functions when making a separation in the linked list will shorten
+	the text in the link containing the given index create a new next link contain
+	the remainder of that text. This helps prevent a bug where the second get cut
+	call could modify the value returned by the first. 
 	*/
+	
+
 	static get_start_cut_at_index = function(index) {
 		var curs = linked_list
 		while (index < curs.index_start) curs = curs.next
 		if (curs.index_start == index) {
 			return curs
 		} else {
+			/*
+			before cut
+			previous -> link -> next
+							^
+					contains start index
+	
+			after cut
+			previous -> link -> new_link -> next
+									^
+					returned value (starts with given index)
+			*/
 			var char_index = index - curs.index_start + 1
 			var left_cut_text = string_copy(curs.text, 1, char_index - 1)
-			var right_cut_text = string_copy(curs.text, char_index, string_length(curs.text) - char_index - 1)
+			var right_cut_text = string_copy(curs.text, char_index, curs.index_end - index + 1)
 			var new_link = {
 				text:			right_cut_text,
 				style:			curs.style.copy(),
-				previous:		curs,
 				next:			curs.next,
 				index_start:	index,
 				index_end:		curs.index_end
 			}
-			if (new_link.next != undefined) new_link.next.previous = new_link
 			curs.next = new_link
 			curs.text = left_cut_text
 			curs.index_end = index - 1
@@ -225,10 +235,7 @@ function Text(_string) constructor {
 		throw "you screwed up start cut function"
 	}
 	
-	/*
-	Makes a separation in the linked list at the given index so that
-	given index is the end of a new link. Returns said link.
-	*/
+
 	static get_end_cut_at_index = function(index) {
 		var curs = linked_list
 		var searching = true
@@ -242,22 +249,31 @@ function Text(_string) constructor {
 		if (curs.index_end == index) {
 			return curs
 		} else {
+			/*
+			before cut
+			previous -> link -> next
+						  ^
+				 contains end index
+	
+			after cut
+			previous -> link -> new_link -> next
+						  ^
+			  returned value (ends with given index)
+			*/
 			var char_index = index - curs.index_start + 1
 			var left_cut_text = string_copy(curs.text, 1, char_index)
-			var right_cut_text = string_copy(curs.text, char_index + 1, string_length(curs.text) - char_index)
+			var right_cut_text = string_copy(curs.text, char_index + 1, curs.index_end - index)
 			var new_link = {
-				text:			left_cut_text,
+				text:			right_cut_text,
 				style:			curs.style.copy(),
-				previous:		curs.previous,
-				next:			curs,
-				index_start:	curs.index_start,
-				index_end:		index
+				next:			curs.next,
+				index_start:	index + 1,
+				index_end:		curs.index_end
 			}
-			if (curs.previous != undefined) curs.previous.next = new_link
-			curs.previous = new_link
-			curs.text = right_cut_text
-			curs.index_start = index + 1
-			return new_link
+			curs.next = new_link
+			curs.text = left_cut_text
+			curs.index_end = index
+			return curs
 		}
 		throw "you screwed up end cut function"
 	}
@@ -265,7 +281,6 @@ function Text(_string) constructor {
 	// temporary style setters (end index is inclusive)
 	static set_color = function(start_index, end_index, color) {
 		var curs = get_start_cut_at_index(start_index)
-		// we have an error here because the link returned by get_start is modified by get end
 		var stop = get_end_cut_at_index(end_index)
 		while (curs != stop) {
 			curs.style.color = color
