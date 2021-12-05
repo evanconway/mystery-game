@@ -6,7 +6,7 @@
     "path": "folders/Text.yy",
   },
   "resourceVersion": "1.0",
-  "name": "Text",
+  "name": "Style",
   "tags": [],
   "resourceType": "GMScript",
 }

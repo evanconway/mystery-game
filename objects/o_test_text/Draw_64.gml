@@ -10,6 +10,8 @@ if (keyboard_check_pressed(vk_right)) {
 	width += adjust
 	text = new Text(source_string, width)
 }
-
-draw_text(0, 0, "width: " + string(width))
-text_draw(100, 100, text)
+draw_set_color(c_lime)
+draw_text(0, 0, fps_real)
+draw_set_color(c_white)
+draw_text(0, 20, "width: " + string(width))
+text_draw(100, 300, text)

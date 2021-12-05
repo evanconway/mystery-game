@@ -2,9 +2,10 @@
   "resources": [
     {"id":{"name":"o_test_dialog","path":"objects/o_test_dialog/o_test_dialog.yy",},"order":2,},
     {"id":{"name":"o_test_scene","path":"objects/o_test_scene/o_test_scene.yy",},"order":6,},
-    {"id":{"name":"Text","path":"scripts/Text/Text.yy",},"order":7,},
+    {"id":{"name":"Text","path":"scripts/Text/Text.yy",},"order":0,},
+    {"id":{"name":"Style","path":"scripts/Style/Style.yy",},"order":1,},
     {"id":{"name":"o_test_text","path":"objects/o_test_text/o_test_text.yy",},"order":9,},
-    {"id":{"name":"f_text_default","path":"fonts/f_text_default/f_text_default.yy",},"order":8,},
+    {"id":{"name":"f_text_default","path":"fonts/f_text_default/f_text_default.yy",},"order":2,},
     {"id":{"name":"Scene","path":"scripts/Scene/Scene.yy",},"order":5,},
     {"id":{"name":"Dialog","path":"scripts/Dialog/Dialog.yy",},"order":4,},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":1,},
@@ -27,7 +28,9 @@
   "RoomOrderNodes": [
     {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],
-  "Folders": [],
+  "Folders": [
+    {"folderPath":"folders/Text.yy","order":10,"resourceVersion":"1.0","name":"Text","tags":[],"resourceType":"GMFolder",},
+  ],
   "AudioGroups": [
     {"targets":-1,"resourceVersion":"1.3","name":"audiogroup_default","resourceType":"GMAudioGroup",},
   ],

@@ -200,8 +200,8 @@
   "canGenerateBitmap": true,
   "maintainGms1Font": false,
   "parent": {
-    "name": "mystery-game",
-    "path": "mystery-game.yyp",
+    "name": "Text",
+    "path": "folders/Text.yy",
   },
   "resourceVersion": "1.0",
   "name": "f_text_default",
