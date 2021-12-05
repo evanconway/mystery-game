@@ -23,12 +23,13 @@ function Text(_string) constructor {
 	line_heights = []
 	
 	static calculate_char_positions = function() {
-		// determine char width/height
+		// determine char width/height and reset line
 		for (var i = 0; i < array_length(char_array); i++) {
 			var c = char_array[i]
 			draw_set_font(c.style.font)
 			c.width = c.style.scale_x * string_width(c.character)
 			c.height = c.style.scale_y * string_height(c.character)
+			c.style.line = -1
 		}
 		
 		// note that line break information is stored style of characters for easier comparison
@@ -132,6 +133,18 @@ function Text(_string) constructor {
 	
 	generate_linked_list()
 	
+	// base style setters (end index is inclusive)
+	/*
+	font
+	scale_x 
+	scale_y
+	offset_x
+	offset_y
+	color
+	angle 
+	alpha
+	*/
+	
 	// end_index is inclusive
 	static set_base_font = function(start_index, end_index, font) {
 		for (var i = start_index; i <= end_index && i < array_length(char_array); i++) {
@@ -140,6 +153,16 @@ function Text(_string) constructor {
 		calculate_char_positions()
 		generate_linked_list()
 	}
+	
+	static set_base_scale_x = function(start_index, end_index, scale_x) {
+		for (var i = start_index; i <= end_index && i < array_length(char_array); i++) {
+			char_array[i].style.scale_x = scale_x
+		}
+		calculate_char_positions()
+		generate_linked_list()
+	}
+	
+	
 }
 
 function text_draw(x, y, text) {
