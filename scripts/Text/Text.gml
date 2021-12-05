@@ -134,18 +134,7 @@ function Text(_string) constructor {
 	generate_linked_list()
 	
 	// base style setters (end index is inclusive)
-	/*
-	font
-	scale_x 
-	scale_y
-	offset_x
-	offset_y
-	color
-	angle 
-	alpha
-	*/
 	
-	// end_index is inclusive
 	static set_base_font = function(start_index, end_index, font) {
 		for (var i = start_index; i <= end_index; i++) {
 			char_array[i].style.font = font
@@ -203,6 +192,86 @@ function Text(_string) constructor {
 			char_array[i].style.alpha = alpha
 		}
 		generate_linked_list()
+	}
+	
+	
+	/*
+	Makes a separation in the linked list at the given index so that
+	given index is the start of a new link. Returns said link.
+	*/
+	static get_start_cut_at_index = function(index) {
+		var curs = linked_list
+		while (index < curs.index_start) curs = curs.next
+		if (curs.index_start == index) {
+			return curs
+		} else {
+			var char_index = index - curs.index_start + 1
+			var left_cut_text = string_copy(curs.text, 1, char_index - 1)
+			var right_cut_text = string_copy(curs.text, char_index, string_length(curs.text) - char_index - 1)
+			var new_link = {
+				text:			right_cut_text,
+				style:			curs.style.copy(),
+				previous:		curs,
+				next:			curs.next,
+				index_start:	index,
+				index_end:		curs.index_end
+			}
+			if (new_link.next != undefined) new_link.next.previous = new_link
+			curs.next = new_link
+			curs.text = left_cut_text
+			curs.index_end = index - 1
+			return new_link
+		}
+		throw "you screwed up start cut function"
+	}
+	
+	/*
+	Makes a separation in the linked list at the given index so that
+	given index is the end of a new link. Returns said link.
+	*/
+	static get_end_cut_at_index = function(index) {
+		var curs = linked_list
+		var searching = true
+		while (searching) {
+			if (index >= curs.index_start && index <= curs.index_end) {
+				searching = false
+			} else {
+				curs = curs.next
+			}
+		}
+		if (curs.index_end == index) {
+			return curs
+		} else {
+			var char_index = index - curs.index_start + 1
+			var left_cut_text = string_copy(curs.text, 1, char_index)
+			var right_cut_text = string_copy(curs.text, char_index + 1, string_length(curs.text) - char_index)
+			var new_link = {
+				text:			left_cut_text,
+				style:			curs.style.copy(),
+				previous:		curs.previous,
+				next:			curs,
+				index_start:	curs.index_start,
+				index_end:		index
+			}
+			if (curs.previous != undefined) curs.previous.next = new_link
+			curs.previous = new_link
+			curs.text = right_cut_text
+			curs.index_start = index + 1
+			return new_link
+		}
+		throw "you screwed up end cut function"
+	}
+	
+	// temporary style setters (end index is inclusive)
+	static set_color = function(start_index, end_index, color) {
+		var curs = get_start_cut_at_index(start_index)
+		// we have an error here because the link returned by get_start is modified by get end
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.color = color
+			curs = curs.next
+		}
+		curs.style.color = color
 	}
 }
 

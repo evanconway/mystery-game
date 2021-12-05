@@ -58,6 +58,8 @@ if (keyboard_check_pressed(ord("R"))) {
 	else text.set_base_angle(2, 15, 20)
 }
 
+text.set_color(0, 22, c_yellow)
+
 draw_set_color(c_lime)
 draw_text(0, 0, fps_real)
 draw_set_color(c_white)
