@@ -28,6 +28,17 @@ if (keyboard_check_pressed(ord("S"))) {
 	}
 }
 
+if (keyboard_check_pressed(ord("O"))) {
+	toggle_offset = !toggle_offset
+	if (toggle_offset) {
+		text.set_base_offset_x(5, 33, 0)
+		text.set_base_offset_y(35, 43, 0)
+	} else {
+		text.set_base_offset_x(5, 33, -10)
+		text.set_base_offset_y(35, 43, 20)
+	}
+}
+
 draw_set_color(c_lime)
 draw_text(0, 0, fps_real)
 draw_set_color(c_white)

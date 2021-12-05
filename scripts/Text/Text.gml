@@ -169,6 +169,20 @@ function Text(_string) constructor {
 		calculate_char_positions()
 		generate_linked_list()
 	}
+	
+	static set_base_offset_x = function(start_index, end_index, offset_x) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.offset_x = offset_x
+		}
+		generate_linked_list()
+	}
+	
+	static set_base_offset_y = function(start_index, end_index, offset_y) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.offset_y = offset_y
+		}
+		generate_linked_list()
+	}
 }
 
 function text_draw(x, y, text) {
