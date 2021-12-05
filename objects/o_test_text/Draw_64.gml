@@ -19,8 +19,13 @@ if (keyboard_check_pressed(ord("F"))) {
 
 if (keyboard_check_pressed(ord("S"))) {
 	toggle_scale = !toggle_scale
-	if (toggle_scale) text.set_base_scale_x(20, 40, 1)
-	else text.set_base_scale_x(20, 40, 2)
+	if (toggle_scale) {
+		text.set_base_scale_x(20, 40, 1)
+		text.set_base_scale_y(10, 30, 1)
+	} else {
+		text.set_base_scale_x(20, 40, 2)
+		text.set_base_scale_y(10, 30, 2)
+	}
 }
 
 draw_set_color(c_lime)

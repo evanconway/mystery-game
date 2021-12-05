@@ -147,7 +147,7 @@ function Text(_string) constructor {
 	
 	// end_index is inclusive
 	static set_base_font = function(start_index, end_index, font) {
-		for (var i = start_index; i <= end_index && i < array_length(char_array); i++) {
+		for (var i = start_index; i <= end_index; i++) {
 			char_array[i].style.font = font
 		}
 		calculate_char_positions()
@@ -155,14 +155,20 @@ function Text(_string) constructor {
 	}
 	
 	static set_base_scale_x = function(start_index, end_index, scale_x) {
-		for (var i = start_index; i <= end_index && i < array_length(char_array); i++) {
+		for (var i = start_index; i <= end_index; i++) {
 			char_array[i].style.scale_x = scale_x
 		}
 		calculate_char_positions()
 		generate_linked_list()
 	}
 	
-	
+	static set_base_scale_y = function(start_index, end_index, scale_y) {
+		for (var i = start_index; i <= end_index; i++) {
+			char_array[i].style.scale_y = scale_y
+		}
+		calculate_char_positions()
+		generate_linked_list()
+	}
 }
 
 function text_draw(x, y, text) {
