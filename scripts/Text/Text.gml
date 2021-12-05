@@ -91,31 +91,44 @@ function Text(_string) constructor {
 		style:			char_array[0].style.copy(),
 		previous:		undefined,
 		next:			undefined,
-		index_start:	0,
-		index_end:		0
+		index_start:	0,	// index in char array
+		index_end:		0	// index in char array, inclusive
 	}
 	var curr_link = linked_list
-	var curr_line = char_array[0].style.line
 	// at first, all characters will have same style, so only thing creating different links is line breaks
 	for (var i = 1; i < array_length(char_array); i++) {
 		var c = char_array[i]
-		if (c.style.line == curr_line) {
+		if (curr_link.style.equals(c.style)) {
 			curr_link.text += c.character
+			curr_link.index_end = i
+		} else {
+			var new_link = {
+				text:			c.character,
+				style:			c.style.copy(),
+				previous:		curr_link,
+				next:			undefined,
+				index_start:	i,
+				index_end:		0
+			}
+			curr_link.next = new_link
+			curr_link = new_link
 		}
 	}
+	show_debug_message("text generation complete")
 }
 
 function text_draw(x, y, text) {
 	with (text) {
-		for (var i = 0; i < array_length(char_array); i++) {
-			var c = char_array[i]
-			var s = c.style
-			draw_set_font(s.font)
-			draw_set_color(s.color)
-			draw_set_alpha(s.alpha)
-			var _x = x + c.x + s.offset_x
-			var _y = y + c.y + s.offset_y
-			draw_text_transformed(_x, _y, c.character, s.scale_x, s.scale_y, s.angle)
+		var curr_link = linked_list
+		while (curr_link != undefined) {
+			var style = curr_link.style
+			draw_set_font(style.font)
+			draw_set_color(style.color)
+			draw_set_alpha(style.alpha)
+			var _x = x + char_array[curr_link.index_start].x + style.offset_x
+			var _y = y + char_array[curr_link.index_start].y + style.offset_y
+			draw_text_transformed(_x, _y, curr_link.text, style.scale_x, style.scale_y, style.angle)
+			curr_link = curr_link.next
 		}
 	}
 }
