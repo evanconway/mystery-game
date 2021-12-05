@@ -7,6 +7,7 @@
     {"id":{"name":"o_test_text","path":"objects/o_test_text/o_test_text.yy",},"order":9,},
     {"id":{"name":"f_text_default","path":"fonts/f_text_default/f_text_default.yy",},"order":2,},
     {"id":{"name":"Scene","path":"scripts/Scene/Scene.yy",},"order":5,},
+    {"id":{"name":"f_text_handwritten","path":"fonts/f_text_handwritten/f_text_handwritten.yy",},"order":3,},
     {"id":{"name":"Dialog","path":"scripts/Dialog/Dialog.yy",},"order":4,},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":1,},
   ],

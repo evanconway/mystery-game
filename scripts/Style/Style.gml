@@ -9,7 +9,7 @@ function Style() constructor {
 	alpha = 1
 	line = -1
 	
-	copy = function() {
+	static copy = function() {
 		var result = new Style()
 		result.offset_x = offset_x
 		result.offset_y = offset_y
@@ -23,7 +23,7 @@ function Style() constructor {
 		return result
 	}
 	
-	equals = function(compare) {
+	static equals = function(compare) {
 		if (compare.offset_x != offset_x) return false
 		if (compare.offset_y != offset_y) return false
 		if (compare.color != color) return false
