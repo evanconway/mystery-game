@@ -1,6 +1,6 @@
 /// @description Insert description here
 // You can write your code in this editor
-var adjust = 10
+var adjust = 20
 
 if (keyboard_check_pressed(vk_left)) {
 	width -= adjust;
@@ -12,55 +12,14 @@ if (keyboard_check_pressed(vk_right)) {
 	text = new Text(source_string, width)
 }
 
-if (keyboard_check_pressed(ord("F"))) {
-	toggle_font = !toggle_font
-	if (toggle_font) text.set_base_font(0, 10, f_text_default)
-	else text.set_base_font(0, 10, f_text_handwritten)
-}
+//text.set_color(6, 22, c_yellow)
+//text.set_offset_x(8, 15, -5)
+//text.set_offset_y(18, 23, 5)
+//text.set_alpha(32, 41, 0.3)
 
-if (keyboard_check_pressed(ord("S"))) {
-	toggle_scale = !toggle_scale
-	if (toggle_scale) {
-		text.set_base_scale_x(20, 40, 1)
-		text.set_base_scale_y(10, 30, 1)
-	} else {
-		text.set_base_scale_x(20, 40, 2)
-		text.set_base_scale_y(10, 30, 2)
-	}
-}
-
-if (keyboard_check_pressed(ord("O"))) {
-	toggle_offset = !toggle_offset
-	if (toggle_offset) {
-		text.set_base_offset_x(5, 33, 0)
-		text.set_base_offset_y(35, 43, 0)
-	} else {
-		text.set_base_offset_x(5, 33, -10)
-		text.set_base_offset_y(35, 43, 20)
-	}
-}
-
-if (keyboard_check_pressed(ord("C"))) {
-	toggle_color = !toggle_color
-	if (toggle_color) text.set_base_color(10, 27, c_white)
-	else text.set_base_color(10, 27, c_blue)
-}
-
-if (keyboard_check_pressed(ord("A"))) {
-	toggle_alpha = !toggle_alpha
-	if (toggle_alpha) text.set_base_alpha(18, 23, 1)
-	else text.set_base_alpha(18, 23, 0.3)
-}
-
-if (keyboard_check_pressed(ord("R"))) {
-	toggle_angle = !toggle_angle
-	if (toggle_angle) text.set_base_angle(2, 15, 0)
-	else text.set_base_angle(2, 15, 20)
-}
-
-text.set_color(6, 22, c_yellow)
-text.set_offset_x(8, 15, -5)
-text.set_offset_y(18, 23, 5)
+text.fx_fade(6, 22, update_count, 1/60, 0.6, 0.2)
+text.fx_hover(6, 22, update_count, 1/60, 4)
+update_count++
 
 draw_set_color(c_lime)
 draw_text(0, 0, fps_real)

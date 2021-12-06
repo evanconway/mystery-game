@@ -285,37 +285,35 @@ function Text(_string) constructor {
 		throw "you screwed up end cut function"
 	}
 	
-	// temporary style setters (end index is inclusive)
+	// temporary style modifiers (end index is inclusive)
+	// these are not setters because the value is adjusted by the given amout, and it is reverted after each draw
+	// (except color and font, these can only be set)
 	/*
-	font = f_text_default
-	scale_x = 1
-	scale_y = 1
 	angle = 0
 	alpha = 1
-	line = -1
 	*/
 	
-	static set_offset_x = function(start_index, end_index, offset_x) {
+	static mod_offset_x = function(start_index, end_index, offset_x) {
 		var curs = get_start_cut_at_index(start_index)
 		var stop = get_end_cut_at_index(end_index)
 		while (curs != stop) {
-			curs.style.offset_x = offset_x
+			curs.style.offset_x += offset_x
 			curs = curs.next
 		}
-		curs.style.offset_x = offset_x
+		curs.style.offset_x = +offset_x
 	}
 	
-	static set_offset_y = function(start_index, end_index, offset_y) {
+	static mod_offset_y = function(start_index, end_index, offset_y) {
 		var curs = get_start_cut_at_index(start_index)
 		var stop = get_end_cut_at_index(end_index)
 		while (curs != stop) {
-			curs.style.offset_y = offset_y
+			curs.style.offset_y += offset_y
 			curs = curs.next
 		}
-		curs.style.offset_y = offset_y
+		curs.style.offset_y += offset_y
 	}
 	
-	static set_color = function(start_index, end_index, color) {
+	static mod_color = function(start_index, end_index, color) {
 		var curs = get_start_cut_at_index(start_index)
 		var stop = get_end_cut_at_index(end_index)
 		while (curs != stop) {
@@ -324,12 +322,86 @@ function Text(_string) constructor {
 		}
 		curs.style.color = color
 	}
+	
+	static mod_font = function(start_index, end_index, font) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.font = font
+			curs = curs.next
+		}
+		curs.style.font = font
+	}
+	
+	static mod_scale_x = function(start_index, end_index, scale_x) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.scale_x *= scale_x
+			curs = curs.next
+		}
+		curs.style.scale_x *= scale_x
+	}
+	
+	static mod_scale_y = function(start_index, end_index, scale_y) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.scale_y = scale_y
+			curs = curs.next
+		}
+		curs.style.scale_y += scale_y
+	}
+	
+	static mod_angle = function(start_index, end_index, angle) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.angle += angle
+			curs = curs.next
+		}
+		curs.style.angle += angle
+	}
+	
+	static mod_alpha = function(start_index, end_index, alpha) {
+		var curs = get_start_cut_at_index(start_index)
+		var stop = get_end_cut_at_index(end_index)
+		while (curs != stop) {
+			curs.style.alpha *= alpha
+			curs = curs.next
+		}
+		curs.style.alpha *= alpha
+	}
+	
+	/*
+	Effects!
+	All effects need at least a start_index, and end_index, an update_count, and an update_increment.
+	The indexes are self explanatory. It's expected that update count will be incremented each frame.
+	The update_increment is the percentage of the cycle each increase in the update count will trigger.
+	For example, if the update increment is 0.1, it will take 10 increments to update_count to perform
+	a full cycle of any given effect. The definition of a cycle varies from effect to effect.
+	*/
+	
+	static fx_hover = function(start_index, end_index, update_count, update_increment, magnitude) {
+		var mod_y = sin(update_count * update_increment * 2 * pi + pi * 0.5) * magnitude * -1 // recall y is reversed
+		mod_offset_y(start_index, end_index, mod_y)
+	}
+	
+	static fx_fade = function(start_index, end_index, update_count, update_increment, alpha_max, alpha_min) {
+		// triangle function (looks better than sin IMO)
+		var m = (update_count * update_increment * 2 + 1) % 2
+		m = m <= 1 ? m : 2 - m
+		m = (alpha_max - alpha_min) * m + alpha_min
+		mod_alpha(start_index, end_index, m)
+	}
+		
 }
 
 function text_draw(x, y, text) {
 	var links_drawn = 0
 	with (text) {
 		var curr_link = linked_list
+		// TODO: links should merge together during this step, before being drawn
 		while (curr_link != undefined) {
 			var style = curr_link.style
 			draw_set_font(style.font)
@@ -338,6 +410,7 @@ function text_draw(x, y, text) {
 			var _x = x + char_array[curr_link.index_start].X + style.offset_x
 			var _y = y + char_array[curr_link.index_start].Y + style.offset_y
 			draw_text_transformed(_x, _y, curr_link.text, style.scale_x, style.scale_y, style.angle)
+			curr_link.style = char_array[curr_link.index_start].style.copy() // resets styles
 			curr_link = curr_link.next
 			links_drawn++
 		}
