@@ -439,6 +439,13 @@ function Text(_string) constructor {
 			mod_offset_y(start_index + i, start_index + i, m_y)
 		}
 	}
+	
+	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude) {
+		var arr = global.text_random_arr
+		var rand = arr[floor(update_count * update_increment) % array_length(arr)]
+		var arr_index = floor( rand * (end_index - start_index + 1)) + start_index
+		mod_offset_y(arr_index, arr_index, magnitude)
+	}
 }
 
 function text_draw(x, y, text) {

@@ -17,7 +17,7 @@ if (keyboard_check_pressed(vk_right)) {
 //text.set_offset_y(18, 23, 5)
 //text.set_alpha(32, 41, 0.3)
 
-text.fx_shake(6, 22, update_count, 1/6, 1)
+text.fx_twitch(6, 22, update_count, 1/60, 5)
 update_count++
 
 draw_set_color(c_lime)
