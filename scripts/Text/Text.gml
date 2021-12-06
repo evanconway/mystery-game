@@ -1,3 +1,8 @@
+global.text_random_arr = array_create(power(2, 16))
+for (var i = 0; i < array_length(global.text_random_arr); i++) {
+	global.text_random_arr[i] = random(1)
+}
+
 /// @func Text(string, *width)
 function Text(_string) constructor {
 	if (!is_string(_string) || string_length(_string) <= 0) throw "Text Error: string must be of type string and length of 1 or greater."
@@ -394,7 +399,22 @@ function Text(_string) constructor {
 		m = (alpha_max - alpha_min) * m + alpha_min
 		mod_alpha(start_index, end_index, m)
 	}
-		
+	
+	/*
+	Each character will be in its own position in the sin wave. Increment separator is the distance 
+	along the sin wave between each character.
+	*/
+	static fx_wave = function(start_index, end_index, update_count, update_increment, magnitude, increment_separator) {
+		for (var i = start_index; i <= end_index; i++) {
+			var inc_mod = (i - start_index) * increment_separator * 2 * pi
+			var mod_y = sin(update_count * update_increment * 2 * pi + pi * 0.5 - inc_mod) * magnitude * -1 // recall y is reversed
+			mod_offset_y(i, i, mod_y)
+		}
+	}
+	
+	
+	static fx_shake = function(start_index, end_index, update_count, update_increment, magnitude) {
+	}
 }
 
 function text_draw(x, y, text) {
