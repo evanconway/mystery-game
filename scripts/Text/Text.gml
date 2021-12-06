@@ -412,8 +412,32 @@ function Text(_string) constructor {
 		}
 	}
 	
-	
 	static fx_shake = function(start_index, end_index, update_count, update_increment, magnitude) {
+		var arr = global.text_random_arr
+		var arr_offset = power(2, 10)
+		for (var i = 0; i < end_index - start_index; i++) {
+			var arr_index = floor(update_count * update_increment) + i * arr_offset
+			var m_x = arr[arr_index % array_length(arr)]
+			if (magnitude <= 0) {
+				m_x = m_x < 0.5 ? 0 : 1
+			} else {
+				if (m_x < 0.33) m_x = -1
+				else if (m_x < 0.66) m_x = 0
+				else m_x = 1
+				m_x *= magnitude
+			}
+			var m_y = arr[(arr_index + array_length(arr) / 2) % array_length(arr)]
+			if (magnitude <= 0) {
+				m_y = m_y < 0.5 ? 0 : 1
+			} else {
+				if (m_y < 0.33) m_y = -1
+				else if (m_y < 0.66) m_y = 0
+				else m_y = 1
+				m_y *= magnitude
+			}
+			mod_offset_x(start_index + i, start_index + i, m_x)
+			mod_offset_y(start_index + i, start_index + i, m_y)
+		}
 	}
 }
 
