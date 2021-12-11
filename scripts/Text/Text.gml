@@ -393,14 +393,18 @@ function Text(_string) constructor {
 	value in char array. If magnitude is 0, returns 0 or 1. Given index can be greater than length
 	of random array and will account for wrap around.
 	*/
-	static get_rand_offset = function(index, magnitude) {
+	static get_rand_offset = function(index, magnitude, allow_zero) {
 		var result = 0
 		var rand = global.text_random_arr[index % array_length(global.text_random_arr)]
 		if (magnitude <= 0) {
-			result = rand < 0.5 ? 0 : 1
-		} else {
+			if (allow_zero) result = rand < 0.5 ? 0 : 1
+			else result = 1
+		} else if (allow_zero) {
 			if (rand < 0.33) result = magnitude * -1
 			else if (rand < 0.66) result = 0
+			else result = magnitude
+		} else {
+			if (rand < 0.5) result = magnitude * -1
 			else result = magnitude
 		}
 		return result
@@ -438,23 +442,27 @@ function Text(_string) constructor {
 			var arr_index = floor(update_count * update_increment) + i * arr_offset
 			var m_x = get_rand_offset(arr_index, magnitude)
 			var m_y = get_rand_offset(arr_index + array_length(global.text_random_arr) / 2, magnitude)
-			mod_offset_x(start_index + i, start_index + i, m_x)
-			mod_offset_y(start_index + i, start_index + i, m_y)
+			mod_offset_x(start_index + i, start_index + i, m_x, true)
+			mod_offset_y(start_index + i, start_index + i, m_y, true)
 		}
 	}
 	
-	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude, min_time, max_time) {
+	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude, probability, time, num_of_twitches) {
 		var rand_arr = global.text_random_arr
 		var arr_length = array_length(rand_arr)
 		var update_index = floor(update_count * update_increment)
-		var twitch_time = min_time + rand_arr[update_index % arr_length] * (max_time - min_time)
-		if (update_count * update_increment % 1 < twitch_time) {
-			var quarter = floor(arr_length / 4)
-			var twitched_index = floor(rand_arr[(update_index + quarter) % arr_length] * (end_index - start_index + 1) + start_index)
-			var offset_x = get_rand_offset((update_index + quarter * 2) % arr_length, magnitude)
-			var offset_y = get_rand_offset((update_index + quarter * 3) % arr_length, magnitude)
-			mod_offset_x(twitched_index, twitched_index, offset_x)
-			mod_offset_y(twitched_index, twitched_index, offset_y)
+		var under_time = ((update_increment * update_count) % 1) < time
+		var offset = power(2, 10)
+		for (var i = 0; i < num_of_twitches; i++) {
+			var perform_twitch = rand_arr[(update_index + offset * i) % arr_length] < probability
+			if (under_time && perform_twitch) {
+				var quarter = floor(arr_length / 4)
+				var twitched_index = floor(rand_arr[(update_index + quarter + offset * i) % arr_length] * (end_index - start_index + 1) + start_index)
+				var offset_x = get_rand_offset((update_index + offset * i + quarter * 2) % arr_length, magnitude)
+				var offset_y = get_rand_offset((update_index + offset * i + arr_length / 2 + quarter * 3) % arr_length, magnitude)
+				mod_offset_x(twitched_index, twitched_index, offset_x, false)
+				mod_offset_y(twitched_index, twitched_index, offset_y, false)
+			}
 		}
 	}
 }
