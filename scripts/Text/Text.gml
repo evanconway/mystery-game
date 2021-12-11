@@ -203,7 +203,6 @@ function Text(_string) constructor {
 	the remainder of that text. This helps prevent a bug where the second get cut
 	call could modify the value returned by the first. 
 	*/
-	
 
 	static get_start_cut_at_index = function(index) {
 		var curs = linked_list
@@ -387,6 +386,27 @@ function Text(_string) constructor {
 	a full cycle of any given effect. The definition of a cycle varies from effect to effect.
 	*/
 	
+	// utility functions
+	
+	/*
+	Given a magnitude and index in the random array, returns -magnitude, magnitude, or 0 depending on 
+	value in char array. If magnitude is 0, returns 0 or 1. Given index can be greater than length
+	of random array and will account for wrap around.
+	*/
+	static get_rand_offset = function(index, magnitude) {
+		var result = 0
+		var rand = global.text_random_arr[index % array_length(global.text_random_arr)]
+		if (magnitude <= 0) {
+			result = rand < 0.5 ? 0 : 1
+		} else {
+			if (rand < 0.33) result = magnitude * -1
+			else if (rand < 0.66) result = 0
+			else result = magnitude
+		}
+		return result
+	}
+	
+	
 	static fx_hover = function(start_index, end_index, update_count, update_increment, magnitude) {
 		var mod_y = sin(update_count * update_increment * 2 * pi + pi * 0.5) * magnitude * -1 // recall y is reversed
 		mod_offset_y(start_index, end_index, mod_y)
@@ -413,38 +433,29 @@ function Text(_string) constructor {
 	}
 	
 	static fx_shake = function(start_index, end_index, update_count, update_increment, magnitude) {
-		var arr = global.text_random_arr
 		var arr_offset = power(2, 10)
 		for (var i = 0; i < end_index - start_index; i++) {
 			var arr_index = floor(update_count * update_increment) + i * arr_offset
-			var m_x = arr[arr_index % array_length(arr)]
-			if (magnitude <= 0) {
-				m_x = m_x < 0.5 ? 0 : 1
-			} else {
-				if (m_x < 0.33) m_x = -1
-				else if (m_x < 0.66) m_x = 0
-				else m_x = 1
-				m_x *= magnitude
-			}
-			var m_y = arr[(arr_index + array_length(arr) / 2) % array_length(arr)]
-			if (magnitude <= 0) {
-				m_y = m_y < 0.5 ? 0 : 1
-			} else {
-				if (m_y < 0.33) m_y = -1
-				else if (m_y < 0.66) m_y = 0
-				else m_y = 1
-				m_y *= magnitude
-			}
+			var m_x = get_rand_offset(arr_index, magnitude)
+			var m_y = get_rand_offset(arr_index + array_length(global.text_random_arr) / 2, magnitude)
 			mod_offset_x(start_index + i, start_index + i, m_x)
 			mod_offset_y(start_index + i, start_index + i, m_y)
 		}
 	}
 	
-	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude) {
-		var arr = global.text_random_arr
-		var rand = arr[floor(update_count * update_increment) % array_length(arr)]
-		var arr_index = floor( rand * (end_index - start_index + 1)) + start_index
-		mod_offset_y(arr_index, arr_index, magnitude)
+	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude, min_time, max_time) {
+		var rand_arr = global.text_random_arr
+		var arr_length = array_length(rand_arr)
+		var update_index = floor(update_count * update_increment)
+		var twitch_time = min_time + rand_arr[update_index % arr_length] * (max_time - min_time)
+		if (update_count * update_increment % 1 < twitch_time) {
+			var quarter = floor(arr_length / 4)
+			var twitched_index = floor(rand_arr[(update_index + quarter) % arr_length] * (end_index - start_index + 1) + start_index)
+			var offset_x = get_rand_offset((update_index + quarter * 2) % arr_length, magnitude)
+			var offset_y = get_rand_offset((update_index + quarter * 3) % arr_length, magnitude)
+			mod_offset_x(twitched_index, twitched_index, offset_x)
+			mod_offset_y(twitched_index, twitched_index, offset_y)
+		}
 	}
 }
 
