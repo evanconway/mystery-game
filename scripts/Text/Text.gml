@@ -465,24 +465,44 @@ function Text(_string) constructor {
 			}
 		}
 	}
+	
+	static link_can_merge_next = function(link) {
+		// "link" is link in linked_list
+		if (link.next == undefined) return false
+		return link.style.equals(link.next.style)
+	}
+	
+	static merge_link_with_next = function(link) {
+		var next = link.next
+		link.text += next.text
+		link.index_end = next.index_end
+		link.next = next.next
+	}
+	
+	static draw_link = function(x, y, link) {
+		var style = link.style
+		draw_set_font(style.font)
+		draw_set_color(style.color)
+		draw_set_alpha(style.alpha)
+		var _x = x + char_array[link.index_start].X + style.offset_x
+		var _y = y + char_array[link.index_start].Y + style.offset_y
+		draw_text_transformed(_x, _y, link.text, style.scale_x, style.scale_y, style.angle)
+	}
 }
 
 function text_draw(x, y, text) {
 	var links_drawn = 0
 	with (text) {
 		var curr_link = linked_list
-		// TODO: links should merge together during this step, before being drawn
 		while (curr_link != undefined) {
-			var style = curr_link.style
-			draw_set_font(style.font)
-			draw_set_color(style.color)
-			draw_set_alpha(style.alpha)
-			var _x = x + char_array[curr_link.index_start].X + style.offset_x
-			var _y = y + char_array[curr_link.index_start].Y + style.offset_y
-			draw_text_transformed(_x, _y, curr_link.text, style.scale_x, style.scale_y, style.angle)
-			curr_link.style = char_array[curr_link.index_start].style.copy() // resets styles
-			curr_link = curr_link.next
-			links_drawn++
+			if (link_can_merge_next(curr_link)) {
+				merge_link_with_next(curr_link)
+			} else {
+				draw_link(x, y, curr_link)
+				curr_link.style = char_array[curr_link.index_start].style.copy() // resets styles
+				curr_link = curr_link.next
+				links_drawn++
+			}
 		}
 	}
 	draw_set_font(f_text_default)
