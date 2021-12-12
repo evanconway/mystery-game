@@ -116,24 +116,19 @@ function Type(_text) constructor {
 	
 	set_order_forward()
 	
-	chars_typed = 0
+	index_to_type = 0
+	
+	static get_char_to_type = function() {
+		if (index_to_type >= array_length(char_order)) {
+			return undefined
+		}
+		return text.get_char_at(char_order[index_to_type])
+	}
+	
 	static type_char = function() {
-		if (chars_typed >= array_length(char_order)) {
-			return
-		}
-		/*
-		As a design choice, we don't "type" space chars. It feels bad when a typing cycle
-		has no visual feedback. So we type over all space chars.
-		*/
-		while (text.get_char_at(char_order[chars_typed]) == " " && chars_typed < array_length(char_order)) {
-			set_char_alpha(char_order[chars_typed], 1)
-			chars_typed += 1
-		}
-		// type none space
-		if (chars_typed < array_length(char_order)) {
-			set_char_alpha(char_order[chars_typed], 1)
-			chars_typed += 1
-		}
+		audio_play_sound(Sound1, 1, false)
+		set_char_alpha(char_order[index_to_type], 1)
+		index_to_type += 1
 	}
 	
 	/*
@@ -142,17 +137,35 @@ function Type(_text) constructor {
 	*/
 	update_value = 0
 	char_value = 0
+	punctuation_timing = true
 	static update = function(increment, num_of_chars) {
 		if (increment <= 0) {
 			num_of_chars = 0
 		}
 		update_value += increment
 		char_value += num_of_chars
-		if (update_value >= 1) {
-			for (var i = 0; i < floor(char_value); i++) {
-				type_char()
+		if (update_value >= 1 && index_to_type < array_length(char_order)) {
+			for (var i = 0; i < floor(char_value) && index_to_type < array_length(char_order); i++) {
+				var char = get_char_to_type()
+				while (char == " " && index_to_type < array_length(char_order)) {
+					type_char()
+					char = get_char_to_type()
+				}
+				char = get_char_to_type()
+				if (punctuation_timing) {
+					if (get_char_to_type() == "." || get_char_to_type() == "!" || get_char_to_type() == "?") {
+						update_value = -3
+						i = char_value
+					} if (get_char_to_type() == "," || get_char_to_type() == ";" || get_char_to_type() == ":") {
+						update_value = -1
+						i = char_value
+					}
+				}
+				if (index_to_type < array_length(char_order)) {
+					type_char()
+				}
 			}
-			update_value = update_value % 1
+			if (update_value > 0) update_value = update_value % 1
 		}
 		
 		char_value = char_value % 1

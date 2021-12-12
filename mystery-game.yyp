@@ -2,6 +2,7 @@
   "resources": [
     {"id":{"name":"o_test_dialog","path":"objects/o_test_dialog/o_test_dialog.yy",},"order":2,},
     {"id":{"name":"Type","path":"scripts/Type/Type.yy",},"order":5,},
+    {"id":{"name":"Sound1","path":"sounds/Sound1/Sound1.yy",},"order":6,},
     {"id":{"name":"o_test_scene","path":"objects/o_test_scene/o_test_scene.yy",},"order":6,},
     {"id":{"name":"Effects","path":"scripts/Effects/Effects.yy",},"order":4,},
     {"id":{"name":"Text","path":"scripts/Text/Text.yy",},"order":0,},

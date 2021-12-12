@@ -10,3 +10,5 @@ typer = new Type(text)
 update_count = 0
 
 game_set_speed(60, gamespeed_fps)
+
+start = false

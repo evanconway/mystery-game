@@ -25,8 +25,10 @@ draw_text(0, 0, fps_real)
 draw_set_color(c_white)
 draw_text(0, 20, "width: " + string(width))
 
-if (keyboard_check_pressed(vk_space)) typer.update(1, 1.3)
-else typer.update(0, 1)
+if (keyboard_check_pressed(vk_space)) start = true
+if (start) typer.update(0.15, 1.8)
+else typer.update(0, 0)
+
 text_draw(100, 300, text)
 
 if (keyboard_check_pressed(ord("R"))) {
