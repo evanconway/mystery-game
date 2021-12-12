@@ -511,5 +511,6 @@ function text_draw(x, y, text) {
 	}
 	draw_set_font(f_text_default)
 	draw_set_color(c_white)
+	draw_set_alpha(1)
 	draw_text(x, y - 20, "links drawn: " + string(links_drawn))
 }

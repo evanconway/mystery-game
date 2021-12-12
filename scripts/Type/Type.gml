@@ -1,5 +1,6 @@
-function Type(_text) {
+function Type(_text) constructor {
 	text = _text
+	
 	linked_list = {
 		index_start:	0,
 		index_end:		text.get_length() - 1,	// inclusive
@@ -36,14 +37,19 @@ function Type(_text) {
 				prev.next = curs.next
 			}
 		} else if (curs.index_start != index && curs.index_end != index) {
-			var new_link = {
+			var next_link = {
+				index_start:	index + 1,
+				index_end:		curs.index_end,
+				alpha:			curs.alpha,
+				next:			curs.next
+			}
+			var index_link = {
 				index_start:	index,
 				index_end:		index,
 				alpha:			new_alpha,
-				next:			curs.next
+				next:			next_link
 			}
-			curs.next.index_start = index + 1
-			curs.next = new_link
+			curs.next = index_link
 			curs.index_end = index - 1
 		} else if (curs.index_start == index) {
 			/*
@@ -81,5 +87,41 @@ function Type(_text) {
 		}
 	}
 	
+	chars_typed = []
+	chars_untyped = array_create(text.get_length(), 0)
+	for (var i = 0; i < array_length(chars_untyped); i++) {
+		chars_untyped[i] = i
+	}
+	typing = true
 	
+	update_count = 0
+	static update = function() {
+		if (typing) {
+			if (array_length(chars_untyped) > 0) {
+				var choice = floor(random_range(0, array_length(chars_untyped)))
+				index = chars_untyped[choice]
+				array_delete(chars_untyped, choice, 1)
+				array_push(chars_typed, index)
+				set_index_alpha(index, 1)
+			} else {
+				typing = false
+			}
+		} else {
+			if (array_length(chars_typed) > 0) {
+				var choice = floor(random_range(0, array_length(chars_typed)))
+				index = chars_typed[choice]
+				array_delete(chars_typed, choice, 1)
+				array_push(chars_untyped, index)
+				set_index_alpha(index, 0)
+			} else {
+				typing = true
+			}
+		}
+		
+		var curs = linked_list
+		while (curs != undefined) {
+			text.mod_alpha(curs.index_start, curs.index_end, curs.alpha)
+			curs = curs.next
+		}
+	}
 }
