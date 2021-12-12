@@ -1,12 +1,7 @@
 function Type(_text) constructor {
 	text = _text
 	
-	linked_list = {
-		index_start:	0,
-		index_end:		text.get_length() - 1,	// inclusive
-		alpha:			0,						// chars start invisible
-		next:			undefined
-	}
+	linked_list = undefined
 	
 	// only alphas of 1 or 0 can be used
 	static set_char_alpha = function(index, new_alpha) {
@@ -126,7 +121,6 @@ function Type(_text) constructor {
 	}
 	
 	static type_char = function() {
-		audio_play_sound(Sound1, 1, false)
 		set_char_alpha(char_order[index_to_type], 1)
 		index_to_type += 1
 	}
@@ -165,7 +159,8 @@ function Type(_text) constructor {
 					type_char()
 				}
 			}
-			if (update_value > 0) update_value = update_value % 1
+			if (update_value > 0) update_value = 0 // update is reset instead of % 1 to solve bug
+			audio_play_sound(Sound1, 1, false)
 		}
 		
 		char_value = char_value % 1
@@ -176,4 +171,34 @@ function Type(_text) constructor {
 			curs = curs.next
 		}
 	}
+	
+	static typing_is_finished = function() {
+		return index_to_type >= array_length(char_order)
+	}
+	
+	static set_finished = function() {
+		linked_list = {
+			index_start:	0,
+			index_end:		text.get_length() - 1,	// inclusive
+			alpha:			1,						// chars start invisible
+			next:			undefined
+		}
+		index_to_type = text.get_length()
+		update_value = 0
+		char_value = 0
+	}
+	
+	static reset = function() {
+		linked_list = {
+			index_start:	0,
+			index_end:		text.get_length() - 1,	// inclusive
+			alpha:			0,						// chars start invisible
+			next:			undefined
+		}
+		index_to_type = 0
+		update_value = 0
+		char_value = 0
+	}
+	
+	reset()
 }
