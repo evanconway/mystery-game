@@ -10,6 +10,10 @@ function Text(_string) constructor {
 	source_string = _string
 	char_array = array_create(string_length(source_string))
 	
+	static get_length = function() {
+		return array_length(char_array)
+	}
+	
 	draw_set_font(f_text_default)
 	for (var i = 0; i < array_length(char_array); i++) {
 		var char = string_char_at(source_string, i + 1)
