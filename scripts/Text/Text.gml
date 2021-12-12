@@ -27,6 +27,10 @@ function Text(_string) constructor {
 		}
 	}
 	
+	static get_char_at = function(index) {
+		return char_array[index].character
+	}
+	
 	max_width = argument_count >= 2 ? argument[1] : power(2, 32)
 	
 	line_heights = []
