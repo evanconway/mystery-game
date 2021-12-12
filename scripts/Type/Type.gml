@@ -9,7 +9,7 @@ function Type(_text) constructor {
 	}
 	
 	// only alphas of 1 or 0 can be used
-	static set_index_alpha = function(index, new_alpha) {
+	static set_char_alpha = function(index, new_alpha) {
 		if (new_alpha != 0 && new_alpha != 1) throw "Typer Error: new_alpha must be 0 or 1"
 		var searching = true
 		var curs = linked_list
@@ -87,35 +87,37 @@ function Type(_text) constructor {
 		}
 	}
 	
-	chars_typed = []
-	chars_untyped = array_create(text.get_length(), 0)
-	for (var i = 0; i < array_length(chars_untyped); i++) {
-		chars_untyped[i] = i
+	char_data = ds_map_create()
+	for (var i = 0; i < text.get_length(); i++) {
+		ds_map_add(char_data, i, {
+			alpha:	0,
+			entry:	[]
+		})
 	}
-	typing = true
 	
-	update_count = 0
-	static update = function() {
-		if (typing) {
-			if (array_length(chars_untyped) > 0) {
-				var choice = floor(random_range(0, array_length(chars_untyped)))
-				index = chars_untyped[choice]
-				array_delete(chars_untyped, choice, 1)
-				array_push(chars_typed, index)
-				set_index_alpha(index, 1)
-			} else {
-				typing = false
-			}
-		} else {
-			if (array_length(chars_typed) > 0) {
-				var choice = floor(random_range(0, array_length(chars_typed)))
-				index = chars_typed[choice]
-				array_delete(chars_typed, choice, 1)
-				array_push(chars_untyped, index)
-				set_index_alpha(index, 0)
-			} else {
-				typing = true
-			}
+	type_random = function(num_of_chars) {
+		
+	}
+	
+	last_typed_char = -1
+	type_forward = function(num_of_chars) {
+		if (last_typed_char >= ds_map_size(char_data) - 1) {
+			return
+		}
+		for (var i = 0; i < num_of_chars; i++) {
+			last_typed_char += 1
+			set_char_alpha(last_typed_char, 1)
+		}
+	}
+	
+	type_chars = type_forward
+	
+	update_value = 0
+	static update = function(increment, num_of_chars) {
+		update_value += increment
+		if (update_value >= 1) {
+			type_chars(num_of_chars)
+			update_value = 0
 		}
 		
 		var curs = linked_list
