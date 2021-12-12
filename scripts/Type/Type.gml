@@ -26,7 +26,15 @@ function Type(_text) {
 		}
 		
 		if (curs.index_start == curs.index_end) {
-			
+			curs.alpha = new_alpha
+			if (curs.next != undefined) {
+				curs.index_end = curs.next.index_end
+				curs.next = curs.next.next
+			}
+			if (prev != undefined) {
+				prev.index_end = curs.index_end
+				prev.next = curs.next
+			}
 		} else if (curs.index_start != index && curs.index_end != index) {
 			var new_link = {
 				index_start:	index,
@@ -72,4 +80,6 @@ function Type(_text) {
 			curs.index_end -= 1
 		}
 	}
+	
+	
 }
