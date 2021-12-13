@@ -1,5 +1,3 @@
-
-
 function Type(_text) constructor {
 	text = _text
 	
