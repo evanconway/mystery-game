@@ -21,7 +21,7 @@ text.mod_alpha(55, 71, 0.3)
 
 //text.fx_hover(0, 100, update_count, 1/60, 2) 
 text.fx_fade(150, 350, update_count, 1/60, 0.2, 1)
-text.fx_twitch(500, 600, update_count, 0.1, 2, 0.5, 0.3, 2)
+text.fx_twitch(500, 600, update_count, 0.15, 2, 0.2, 0.4, 20)
 //text.fx_wave(700, 780, update_count, 1/60, 3, 0.1)
 update_count++
 
@@ -31,14 +31,14 @@ draw_set_color(c_white)
 draw_text(0, 20, "width: " + string(width))
 
 if (keyboard_check_pressed(vk_space)) start = true
-if (start) typer.update(0.15, 2.8)
+if (start) typer.update(0.25, 2.8)
 else typer.update(0, 0)
 
 if (keyboard_check_pressed(ord("F"))) {
 	typer.set_finished()
 }
 
-text_draw(100, 300, text)
+text_draw(20, 100, text)
 
 if (keyboard_check_pressed(ord("R"))) {
 	typer.reset()

@@ -122,34 +122,82 @@ function Type(_text) constructor {
 		return text.get_char_at(char_order[index_to_type])
 	}
 	
-	effects = []
+	char_effects = ds_map_create()
+	for (var i = 0; i < array_length(char_order); i++) {
+		ds_map_add(char_effects, i, {
+			entry:	[],
+			leave:	[]
+		})
+	}
+	
+	/* 
+	format of all entry effects:
+	{
+		done:	boolean		// starts false
+		index:	int			// character index
+		text:	text		// reference to text struct
+		update:	function	// must set done to true when finished
+		reset:	function	// reset all custom values, and set done to false
+	}
+	can contain other variables as needed
+	*/
+	
+	effects_entry = []
+	effects_leave = []
+	
+	static add_entry_effect = function(index, effect) {
+		array_push(ds_map_find_value(char_effects, index).entry, effect)
+	}
+	
+	static add_leave_effect = function(index, effect) {
+		array_push(ds_map_find_value(char_effects, index).leave, effect)
+	}
+	
+	for (var i = 0; i < array_length(char_order); i++) {
+		add_entry_effect(i, {
+			done:	false,
+			index:	i,
+			alpha:	0,
+			text:	text,
+			update:	function() {
+				text.mod_alpha(index, index, alpha)
+				alpha += 3/60
+				if (alpha >= 1) done = true
+			},
+			reset:	function() {
+				done = false
+				alpha = 0
+			}
+		})
+		add_entry_effect(i, {
+			done:	false,
+			index:	i,
+			mod_y:	-10,
+			text:	text,
+			update:	function() {
+				text.mod_offset_y(index, index, mod_y)
+				mod_y *= 0.7
+				if (abs(mod_y) <= 0.3) done = true
+			},
+			reset:	function() {
+				done = false
+				mod_y = -10
+			}
+		})
+	}
 	
 	static type_char = function() {
-		set_char_alpha(char_order[index_to_type], 1)
+		var char_index = char_order[index_to_type]
+		set_char_alpha(char_index, 1)
 		if (get_char_to_type() != " ") {
-			// testing entry effects
-			array_push(effects, {
-				done:	false,
-				index:	char_order[index_to_type],
-				alpha:	0,
-				text:	text,
-				update:	function() {
-					text.mod_alpha(index, index, alpha)
-					alpha += 3/60
-					if (alpha >= 1) done = true
-				}
-			})
-			array_push(effects, {
-				done:	false,
-				index:	char_order[index_to_type],
-				mod_y:	-10,
-				text:	text,
-				update:	function() {
-					text.mod_offset_y(index, index, mod_y)
-					mod_y *= 0.7
-					if (abs(mod_y) <= 0.3) done = true
-				}
-			})
+			var entry_arr = ds_map_find_value(char_effects, char_index).entry
+			for (var i = 0; i < array_length(entry_arr); i++) {
+				entry_arr[i].reset()
+				array_push(effects_entry, {
+					index_char:		char_index,
+					index_effect:	i
+				})
+			}
 		}
 		index_to_type += 1
 	}
@@ -166,8 +214,8 @@ function Type(_text) constructor {
 			num_of_chars = 0
 		}
 		update_value += increment
-		char_value += num_of_chars
 		if (update_value >= 1 && index_to_type < array_length(char_order)) {
+			char_value += num_of_chars
 			for (var i = 0; i < floor(char_value) && index_to_type < array_length(char_order); i++) {
 				var char = get_char_to_type()
 				while (char == " " && index_to_type < array_length(char_order)) {
@@ -200,14 +248,20 @@ function Type(_text) constructor {
 			curs = curs.next
 		}
 		
-		for (var i = 0; i < array_length(effects); i++) {
-			var effect = effects[i]
+		// udpdate entry effects
+		for (var i = 0; i < array_length(effects_entry); i++) {
+			var index_char = effects_entry[i].index_char
+			var index_effect = effects_entry[i].index_effect
+			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
 			effect.update()
 			if (effect.done) {
-				array_delete(effects, i, 1)
+				array_delete(effects_entry, i, 1)
 				i -= 1
 			}
 		}
+		
+		// update leave effects
+		// will add later
 	}
 	
 	static typing_is_finished = function() {
