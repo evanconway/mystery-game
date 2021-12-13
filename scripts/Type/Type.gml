@@ -1,3 +1,5 @@
+
+
 function Type(_text) constructor {
 	text = _text
 	
@@ -120,8 +122,35 @@ function Type(_text) constructor {
 		return text.get_char_at(char_order[index_to_type])
 	}
 	
+	effects = []
+	
 	static type_char = function() {
 		set_char_alpha(char_order[index_to_type], 1)
+		if (get_char_to_type() != " ") {
+			// testing entry effects
+			array_push(effects, {
+				done:	false,
+				index:	char_order[index_to_type],
+				alpha:	0,
+				text:	text,
+				update:	function() {
+					text.mod_alpha(index, index, alpha)
+					alpha += 3/60
+					if (alpha >= 1) done = true
+				}
+			})
+			array_push(effects, {
+				done:	false,
+				index:	char_order[index_to_type],
+				mod_y:	-10,
+				text:	text,
+				update:	function() {
+					text.mod_offset_y(index, index, mod_y)
+					mod_y *= 0.7
+					if (abs(mod_y) <= 0.3) done = true
+				}
+			})
+		}
 		index_to_type += 1
 	}
 	
@@ -169,6 +198,15 @@ function Type(_text) constructor {
 		while (curs != undefined) {
 			text.mod_alpha(curs.index_start, curs.index_end, curs.alpha)
 			curs = curs.next
+		}
+		
+		for (var i = 0; i < array_length(effects); i++) {
+			var effect = effects[i]
+			effect.update()
+			if (effect.done) {
+				array_delete(effects, i, 1)
+				i -= 1
+			}
 		}
 	}
 	

@@ -19,10 +19,10 @@ text.mod_color(6, 22, c_yellow)
 //text.mod_offset_y(40, 50, 5)
 text.mod_alpha(55, 71, 0.3)
 
-text.fx_hover(0, 100, update_count, 1/60, 2) 
+//text.fx_hover(0, 100, update_count, 1/60, 2) 
 text.fx_fade(150, 350, update_count, 1/60, 0.2, 1)
 text.fx_twitch(500, 600, update_count, 0.1, 2, 0.5, 0.3, 2)
-text.fx_wave(700, 780, update_count, 1/60, 3, 0.1)
+//text.fx_wave(700, 780, update_count, 1/60, 3, 0.1)
 update_count++
 
 draw_set_color(c_lime)
