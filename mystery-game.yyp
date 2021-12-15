@@ -5,6 +5,7 @@
     {"id":{"name":"Sound1","path":"sounds/Sound1/Sound1.yy",},"order":6,},
     {"id":{"name":"o_test_scene","path":"objects/o_test_scene/o_test_scene.yy",},"order":6,},
     {"id":{"name":"Effects","path":"scripts/Effects/Effects.yy",},"order":4,},
+    {"id":{"name":"o_test_parse","path":"objects/o_test_parse/o_test_parse.yy",},"order":11,},
     {"id":{"name":"Text","path":"scripts/Text/Text.yy",},"order":0,},
     {"id":{"name":"Style","path":"scripts/Style/Style.yy",},"order":1,},
     {"id":{"name":"o_test_text","path":"objects/o_test_text/o_test_text.yy",},"order":9,},

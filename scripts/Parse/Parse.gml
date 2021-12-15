@@ -35,20 +35,25 @@ function Parse(_source_string) constructor {
 		return arr
 	}
 	
-	// later, look over ways to speed this up by having i jump to the next correct position
-	var parsing_fx = false
-	var fx_str = ""
+	effects = []
+	
 	for (var i = 1; i <= string_length(_source_string); i++) {
 		var char = string_char_at(_source_string, i)
 		if (char == "<") {
-			parsing_fx = true
-		} else if (char == ">") {
-			var effects = parse_effects(fx_str)
-			parsing_fx = false
-		} else if (parsing_fx) {
-			fx_str += char
+			var next_pos = string_pos_ext(">", _source_string, i)
+			if (next_pos == 0) next_pos = string_length(_source_string)
+			var fx = string_copy(_source_string, i + 1, next_pos - i - 1)
+			var parsed = parse_effects(fx)
+			for (var f = 0; f < array_length(parsed); f++) {
+				array_push(effects, parsed[f])
+			}
+			i = next_pos
 		} else {
-			source_string += char
+			var next_pos = string_pos_ext("<", _source_string, i)
+			if (next_pos == 0) next_pos = string_length(_source_string) + 1
+			var text = string_copy(_source_string, i, next_pos - i)
+			source_string += text
+			i = next_pos - 1
 		}
 	}
 }
