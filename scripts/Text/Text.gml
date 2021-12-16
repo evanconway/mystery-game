@@ -496,6 +496,20 @@ function Text(_string) constructor {
 		var _y = y + char_array[link.index_start].Y + style.offset_y
 		draw_text_transformed(_x, _y, link.text, style.scale_x, style.scale_y, style.angle)
 	}
+	
+	static draw = function(x, y) {
+		var curr_link = linked_list
+		while (curr_link != undefined) {
+			if (link_can_merge_next(curr_link)) {
+				merge_link_with_next(curr_link)
+			} else {
+				draw_link(x, y, curr_link)
+				curr_link.style = char_array[curr_link.index_start].style.copy() // resets styles
+				curr_link = curr_link.next
+				links_drawn++
+			}
+		}
+	}
 }
 
 function text_draw(x, y, text) {

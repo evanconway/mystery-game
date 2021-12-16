@@ -5,13 +5,13 @@ var adjust = 20
 if (keyboard_check_pressed(vk_left)) {
 	width -= adjust;
 	text = new Text(source_string, width)
-	typer = new Type(text)
+	typer = new Typer(text)
 }
 
 if (keyboard_check_pressed(vk_right)) {
 	width += adjust
 	text = new Text(source_string, width)
-	typer = new Type(text)
+	typer = new Typer(text)
 }
 
 text.mod_color(6, 22, c_yellow)

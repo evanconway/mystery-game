@@ -5,7 +5,7 @@ source_string = "Call me Ishmael. Some years ago--never mind how long precisely 
 width = 350
 text = new Text(source_string, width)
 
-typer = new Type(text)
+typer = new Typer(text)
 
 update_count = 0
 

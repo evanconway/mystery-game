@@ -1,10 +1,11 @@
 {
   "resources": [
     {"id":{"name":"o_test_dialog","path":"objects/o_test_dialog/o_test_dialog.yy",},"order":2,},
-    {"id":{"name":"Type","path":"scripts/Type/Type.yy",},"order":5,},
+    {"id":{"name":"o_test_animated_string","path":"objects/o_test_animated_string/o_test_animated_string.yy",},"order":12,},
+    {"id":{"name":"Typer","path":"scripts/Typer/Typer.yy",},"order":5,},
     {"id":{"name":"Sound1","path":"sounds/Sound1/Sound1.yy",},"order":6,},
+    {"id":{"name":"Animated_Text","path":"scripts/Animated_Text/Animated_Text.yy",},"order":8,},
     {"id":{"name":"o_test_scene","path":"objects/o_test_scene/o_test_scene.yy",},"order":6,},
-    {"id":{"name":"Effects","path":"scripts/Effects/Effects.yy",},"order":4,},
     {"id":{"name":"o_test_parse","path":"objects/o_test_parse/o_test_parse.yy",},"order":11,},
     {"id":{"name":"Text","path":"scripts/Text/Text.yy",},"order":0,},
     {"id":{"name":"Style","path":"scripts/Style/Style.yy",},"order":1,},

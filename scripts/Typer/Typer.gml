@@ -1,4 +1,4 @@
-function Type(_text) constructor {
+function Typer(_text) constructor {
 	text = _text
 	
 	linked_list = undefined
@@ -131,17 +131,18 @@ function Type(_text) constructor {
 	/* 
 	format of all entry effects:
 	{
-		done:	boolean		// starts false
-		index:	int			// character index
-		text:	text		// reference to text struct
-		update:	function	// must set done to true when finished
-		reset:	function	// reset all custom values, and set done to false
+		done:		boolean		// starts false
+		index:		int			// character index
+		text:		text		// reference to text struct
+		progress:	number		// starts 0, effects is complete when this reaches 1
+		apply:		function	// modifys the text object based on progress and effect
+		update:		function	// increases progress, must set done to true when finished
 	}
 	can contain other variables as needed
 	*/
 	
-	effects_entry = []
-	effects_leave = []
+	effects_entry = [] // we should rename this to something like active entry effect references
+	effects_leave = [] // same
 	
 	static add_entry_effect = function(index, effect) {
 		array_push(ds_map_find_value(char_effects, index).entry, effect)
@@ -153,33 +154,37 @@ function Type(_text) constructor {
 	
 	for (var i = 0; i < array_length(char_order); i++) {
 		add_entry_effect(i, {
-			done:	false,
-			index:	i,
-			alpha:	0,
-			text:	text,
-			update:	function() {
-				text.mod_alpha(index, index, alpha)
-				alpha += 3/60
-				if (alpha >= 1) done = true
+			done:		false,
+			index:		i,
+			progress:	0,
+			text:		text,
+			update:	function(mult = 1) {
+				progress += 4/60 * mult
+				if (progress >= 1) {
+					progress = 1
+					done = true
+				}
 			},
-			reset:	function() {
-				done = false
-				alpha = 0
+			apply: function() {
+				text.mod_alpha(index, index, progress)
 			}
 		})
 		add_entry_effect(i, {
-			done:	false,
-			index:	i,
-			mod_y:	-10,
-			text:	text,
-			update:	function() {
-				text.mod_offset_y(index, index, mod_y)
-				mod_y *= 0.7
-				if (abs(mod_y) <= 0.3) done = true
+			done:		false,
+			index:		i,
+			mod_y:		-10,
+			progress:	0,
+			text:		text,
+			update:		function(mult = 1) {
+				progress += 0.1 * mult
+				if (progress >= 1) {
+					progress = 1
+					done = true
+				}
 			},
-			reset:	function() {
-				done = false
-				mod_y = -10
+			apply:	function() {
+				// hand picked magic numbers!
+				text.mod_offset_y(index, index, mod_y * (1 / (progress + 0.63) - 0.63))
 			}
 		})
 	}
@@ -190,7 +195,12 @@ function Type(_text) constructor {
 		if (get_char_to_type() != " ") {
 			var entry_arr = ds_map_find_value(char_effects, char_index).entry
 			for (var i = 0; i < array_length(entry_arr); i++) {
-				entry_arr[i].reset()
+				
+				// reset effect
+				entry_arr[i].done = false
+				entry_arr[i].progress = 0
+				
+				// add reference to active effects arr
 				array_push(effects_entry, {
 					index_char:		char_index,
 					index_effect:	i
@@ -198,6 +208,10 @@ function Type(_text) constructor {
 			}
 		}
 		index_to_type += 1
+	}
+	
+	static typing_is_finished = function() {
+		return index_to_type >= array_length(char_order)
 	}
 	
 	/*
@@ -212,7 +226,7 @@ function Type(_text) constructor {
 			num_of_chars = 0
 		}
 		update_value += increment
-		if (update_value >= 1 && index_to_type < array_length(char_order)) {
+		if (update_value >= 1 && !typing_is_finished()) {
 			char_value += num_of_chars
 			for (var i = 0; i < floor(char_value) && index_to_type < array_length(char_order); i++) {
 				var char = get_char_to_type()
@@ -251,7 +265,8 @@ function Type(_text) constructor {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
 			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
-			effect.update()
+			effect.apply()
+			if (increment > 0) effect.update()
 			if (effect.done) {
 				array_delete(effects_entry, i, 1)
 				i -= 1
@@ -260,10 +275,6 @@ function Type(_text) constructor {
 		
 		// update leave effects
 		// will add later
-	}
-	
-	static typing_is_finished = function() {
-		return index_to_type >= array_length(char_order)
 	}
 	
 	static set_finished = function() {

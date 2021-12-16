@@ -6,7 +6,7 @@
     "path": "folders/Text.yy",
   },
   "resourceVersion": "1.0",
-  "name": "Effects",
+  "name": "Typer",
   "tags": [],
   "resourceType": "GMScript",
 }
