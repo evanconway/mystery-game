@@ -161,7 +161,7 @@ function animated_text_update() {
 	var anim_string = argument0
 	var mult = argument_count > 1 ? argument[1] : 1
 	with (anim_string) {
-		typer.update(typing ? 0.2 : 0, 2)
+		if (typing) typer.update(0.3, 4)
 		for (var i = 0; i < array_length(effects); i++) {
 			effects[i].update(mult)
 		}
@@ -169,6 +169,6 @@ function animated_text_update() {
 }
 
 function animated_text_draw(x, y, animated_text) {
-	animated_text_update(animated_text)
+	animated_text.typer.draw()
 	animated_text.text.draw(x, y)
 }

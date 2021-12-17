@@ -75,7 +75,7 @@ function Text(_string) constructor {
 				word_width += c.width
 			}
 		}
-	
+		
 		// perform line break logic for last word
 		if (line_width + word_width > max_width) {
 			line_index++
@@ -85,7 +85,7 @@ function Text(_string) constructor {
 			char_array[backup].style.line = line_index
 			backup--
 		}
-	
+		
 		// line heights
 		line_heights = array_create(line_index + 1, -1)
 		for (var i = 0; i < array_length(char_array); i++) {

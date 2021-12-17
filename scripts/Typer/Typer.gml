@@ -254,19 +254,12 @@ function Typer(_text) constructor {
 		
 		char_value = char_value % 1
 		
-		var curs = linked_list
-		while (curs != undefined) {
-			text.mod_alpha(curs.index_start, curs.index_end, curs.alpha)
-			curs = curs.next
-		}
-		
 		// udpdate entry effects
 		for (var i = 0; i < array_length(effects_entry); i++) {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
 			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
-			effect.apply()
-			if (increment > 0) effect.update()
+			effect.update()
 			if (effect.done) {
 				array_delete(effects_entry, i, 1)
 				i -= 1
@@ -275,6 +268,21 @@ function Typer(_text) constructor {
 		
 		// update leave effects
 		// will add later
+	}
+	
+	static draw = function() {
+		var curs = linked_list
+		while (curs != undefined) {
+			text.mod_alpha(curs.index_start, curs.index_end, curs.alpha)
+			curs = curs.next
+		}
+		
+		for (var i = 0; i < array_length(effects_entry); i++) {
+			var index_char = effects_entry[i].index_char
+			var index_effect = effects_entry[i].index_effect
+			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
+			effect.apply()
+		}
 	}
 	
 	static set_finished = function() {
@@ -287,6 +295,7 @@ function Typer(_text) constructor {
 		index_to_type = text.get_length()
 		update_value = 0
 		char_value = 0
+		effects_entry = []
 	}
 	
 	static reset = function() {
