@@ -134,7 +134,7 @@ function Text(_string) constructor {
 					style:			c.style.copy(),
 					next:			undefined,
 					index_start:	i,
-					index_end:		0
+					index_end:		i
 				}
 				curr_link.next = new_link
 				curr_link = new_link
@@ -249,11 +249,19 @@ function Text(_string) constructor {
 			curs.next = new_link
 			curs.text = left_cut_text
 			curs.index_end = index - 1
+			
+			if (
+				curs.index_end < curs.index_start ||
+				new_link.index_end < new_link.index_start ||
+				new_link.next.index_end < new_link.next.index_start
+			) {
+				throw "oops"
+			}
+			
 			return new_link
 		}
 		throw "you screwed up start cut function"
 	}
-	
 
 	static get_end_cut_at_index = function(index) {
 		var curs = linked_list
@@ -292,6 +300,15 @@ function Text(_string) constructor {
 			curs.next = new_link
 			curs.text = left_cut_text
 			curs.index_end = index
+			
+			if (
+				curs.index_end < curs.index_start ||
+				new_link.index_end < new_link.index_start ||
+				new_link.next.index_end < new_link.next.index_start
+			) {
+				throw "oops"
+			}
+			
 			return curs
 		}
 		throw "you screwed up end cut function"
@@ -500,13 +517,16 @@ function Text(_string) constructor {
 	static draw = function(x, y) {
 		var curr_link = linked_list
 		while (curr_link != undefined) {
+			if (curr_link.index_end < curr_link.index_start) {
+				var color_arr = [color_get_red(curr_link.style.color), color_get_green(curr_link.style.color), color_get_blue(curr_link.style.color)]
+				throw "Text Error: indexes in linked list are not right"
+			}
 			if (link_can_merge_next(curr_link)) {
 				merge_link_with_next(curr_link)
 			} else {
 				draw_link(x, y, curr_link)
 				curr_link.style = char_array[curr_link.index_start].style.copy() // resets styles
 				curr_link = curr_link.next
-				links_drawn++
 			}
 		}
 	}
