@@ -92,8 +92,8 @@ function Animated_Text() constructor {
 	}
 
 	effects = []
-	for (var i = 0; i < array_length(parsed_effects); i++) {
-		var fx = parsed_effects[i]
+	for (var parsed_index = 0; parsed_index < array_length(parsed_effects); parsed_index++) {
+		var fx = parsed_effects[parsed_index]
 		
 		// typing effects
 		
@@ -112,7 +112,7 @@ function Animated_Text() constructor {
 				text:		text,
 				i_start:	fx.index_start,
 				i_end:		fx.index_end,
-				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 0.1,
+				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/60,
 				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 4,
 				progress:	0,
 				reset:		function() {
@@ -122,6 +122,28 @@ function Animated_Text() constructor {
 					progress += increment * mult
 					var mod_y = sin(progress * 2 * pi + pi * 0.5) * magnitude * -1 // recall y is reversed
 					text.mod_offset_y(i_start, i_end, mod_y)
+				}
+			})
+		}
+		
+		if (fx.command == "wave") {
+			array_push(effects, {
+				text:		text,
+				i_start:	fx.index_start,
+				i_end:		fx.index_end,
+				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/60,
+				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 4,
+				offset:		array_length(fx.args) > 2 && is_real(fx.args[2]) ? fx.args[2] : 1/4,
+				progress:	0,
+				reset:		function() {
+					progress = 0
+				},
+				update:		function(mult = 1) {
+					progress += increment * mult
+					for (var i = 0; i <= i_end - i_start; i++) {
+						var mod_y = sin(progress * 2 * pi + pi * 0.5 - i * offset) * magnitude * -1 // recall y is reversed
+						text.mod_offset_y(i_start + i, i_start + i, mod_y)
+					}
 				}
 			})
 		}
