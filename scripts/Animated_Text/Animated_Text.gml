@@ -186,7 +186,7 @@ function Animated_Text() constructor {
 				i_start:	fx.index_start,
 				i_end:		fx.index_end,
 				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/4,
-				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 3,
+				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 2,
 				position:	{x: 0, y: 0},
 				progress:	0,
 				reset:		function() {
@@ -230,6 +230,67 @@ function Animated_Text() constructor {
 				draw:		function() {
 					text.mod_offset_x(i_start, i_end, position.x)
 					text.mod_offset_y(i_start, i_end, position.y)
+				}
+			})
+		}
+		
+		if (fx.command == "tremble") {
+			array_push(effects, {
+				text:		text,
+				i_start:	fx.index_start,
+				i_end:		fx.index_end,
+				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/5,
+				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 1,
+				positions:	array_create(fx.index_end - fx.index_start + 1, {x: 0, y: 0}),
+				progress:	0,
+				reset:		function() {
+					progress = 0
+					positions = array_create(i_end - i_start + 1, {x: 0, y: 0})
+				},
+				update:		function(mult = 1) {
+					progress += increment * mult
+					if (progress >= 1) {
+						for (var i = 0; i < array_length(positions); i++) {
+							var pos = {x: 0, y: 0}
+							var rand = random(1)
+							if (magnitude == 0) {
+								if (rand < 0.5) {
+									pos.x = 0
+								} else {
+									pos.x = 1
+								}
+							} else if (rand < 1/3) {
+								pos.x = magnitude * -1
+							} else if (rand < 2/3) {
+								pos.x = 0
+							} else {
+								pos.x = magnitude
+							}
+							rand = random(1)
+							if (magnitude == 0) {
+								if (rand < 0.5) {
+									pos.y = 0
+								} else {
+									pos.y = 1
+								}
+							} else if (rand < 1/3) {
+								pos.y = magnitude * -1
+							} else if (rand < 2/3) {
+								pos.y = 0
+							} else {
+								pos.y = magnitude
+							}
+							positions[i] = pos
+						}
+						progress -= 1
+					}
+				},
+				draw:		function() {
+					for (var i = 0; i < array_length(positions); i++) {
+						var pos = positions[i]
+						text.mod_offset_x(i_start + i, i_start + i, pos.x)
+						text.mod_offset_y(i_start + i, i_start + i, pos.y)
+					}
 				}
 			})
 		}
