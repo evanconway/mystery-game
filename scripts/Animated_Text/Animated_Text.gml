@@ -147,6 +147,29 @@ function Animated_Text() constructor {
 				}
 			})
 		}
+		
+		if (fx.command == "fade") {
+			array_push(effects, {
+				text:		text,
+				i_start:	fx.index_start,
+				i_end:		fx.index_end,
+				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/120,
+				alpha_min:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 0.2,
+				alpha_max:		array_length(fx.args) > 2 && is_real(fx.args[2]) ? fx.args[2] : 1,
+				progress:	0,
+				reset:		function() {
+					progress = 0
+				},
+				update:		function(mult = 1) {
+					progress += increment * mult
+					// triangle function (looks better than sin IMO)
+					var m = (progress * 2 + 1) % 2
+					m = m <= 1 ? m : 2 - m
+					m = (alpha_max - alpha_min) * m + alpha_min
+					text.mod_alpha(i_start, i_end, m)
+				}
+			})
+		}
 	}
 }
 

@@ -415,30 +415,12 @@ function Text(_string) constructor {
 		return result
 	}
 	
-	
-	static fx_hover = function(start_index, end_index, update_count, update_increment, magnitude) {
-		var mod_y = sin(update_count * update_increment * 2 * pi + pi * 0.5) * magnitude * -1 // recall y is reversed
-		mod_offset_y(start_index, end_index, mod_y)
-	}
-	
 	static fx_fade = function(start_index, end_index, update_count, update_increment, alpha_max, alpha_min) {
 		// triangle function (looks better than sin IMO)
 		var m = (update_count * update_increment * 2 + 1) % 2
 		m = m <= 1 ? m : 2 - m
 		m = (alpha_max - alpha_min) * m + alpha_min
 		mod_alpha(start_index, end_index, m)
-	}
-	
-	/*
-	Each character will be in its own position in the sin wave. Increment separator is the distance 
-	along the sin wave between each character.
-	*/
-	static fx_wave = function(start_index, end_index, update_count, update_increment, magnitude, increment_separator) {
-		for (var i = start_index; i <= end_index; i++) {
-			var inc_mod = (i - start_index) * increment_separator * 2 * pi
-			var mod_y = sin(update_count * update_increment * 2 * pi + pi * 0.5 - inc_mod) * magnitude * -1 // recall y is reversed
-			mod_offset_y(i, i, mod_y)
-		}
 	}
 	
 	static fx_shake = function(start_index, end_index, update_count, update_increment, magnitude) {
