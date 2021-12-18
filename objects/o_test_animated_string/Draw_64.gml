@@ -2,7 +2,8 @@
 // You can write your code in this editor
 
 if (keyboard_check_pressed(ord("R"))) {
-	animated_text_typing_reset(test)
+	//animated_text_typing_reset(test)
+	animated_text_effects_reset(test)
 }
 
 if (keyboard_check_pressed(ord("F"))) {

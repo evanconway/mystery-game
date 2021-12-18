@@ -264,7 +264,7 @@ function Animated_Text() constructor {
 					reset:		function() {
 						progress = 0
 						position = {x: 0, y: 0}
-						choice = fx.index_start
+						choice = i_start
 					},
 					update:		function(mult = 1) {
 						progress += increment * mult
@@ -308,6 +308,14 @@ function animated_text_typing_is_finished(animated_text) {
 function animated_text_typing_set_finished(animated_text) {
 	animated_text.typer.set_finished()
 	animated_text.typing = false
+}
+
+function animated_text_effects_reset(animated_text) {
+	with (animated_text) {
+		for (var i = 0; i < array_length(effects); i++) {
+			effects[i].reset()
+		}
+	}
 }
 
 function animated_text_typing_reset(animated_text) {
