@@ -237,14 +237,14 @@ function Typer(_text) constructor {
 				char = get_char_to_type()
 				if (punctuation_timing) {
 					if (get_char_to_type() == "." || get_char_to_type() == "!" || get_char_to_type() == "?") {
-						update_value = -3
+						update_value = -2 * num_of_chars
 						i = char_value
 					} if (get_char_to_type() == "," || get_char_to_type() == ";" || get_char_to_type() == ":") {
-						update_value = -1
+						update_value = -1 * num_of_chars
 						i = char_value
 					}
 				}
-				if (index_to_type < array_length(char_order)) {
+				if (!typing_is_finished()) {
 					type_char()
 				}
 			}
