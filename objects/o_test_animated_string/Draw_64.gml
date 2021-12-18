@@ -17,6 +17,5 @@ if (keyboard_check_pressed(vk_space)) {
 	}
 }
 
-
 animated_text_update(test)
 animated_text_draw(100, 100, test)

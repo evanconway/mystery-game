@@ -97,8 +97,6 @@ function Animated_Text() constructor {
 		
 		// typing effects
 		
-		
-		
 		// regular effects
 		color_to_rgb(fx)
 		
@@ -120,7 +118,9 @@ function Animated_Text() constructor {
 				},
 				update:		function(mult = 1) {
 					progress += increment * mult
-					var mod_y = sin(progress * 2 * pi + pi * 0.5) * magnitude * -1 // recall y is reversed
+				},
+				draw:		function() {
+					var mod_y = sin(progress * 2 * pi + pi * 0.5) * magnitude * -1 // -1 starts function at top
 					text.mod_offset_y(i_start, i_end, mod_y)
 				}
 			})
@@ -140,6 +140,8 @@ function Animated_Text() constructor {
 				},
 				update:		function(mult = 1) {
 					progress += increment * mult
+				},
+				draw:		function() {
 					for (var i = 0; i <= i_end - i_start; i++) {
 						var mod_y = sin(progress * 2 * pi + pi * 0.5 - i * offset) * magnitude * -1 // recall y is reversed
 						text.mod_offset_y(i_start + i, i_start + i, mod_y)
@@ -167,6 +169,67 @@ function Animated_Text() constructor {
 					m = m <= 1 ? m : 2 - m
 					m = (alpha_max - alpha_min) * m + alpha_min
 					text.mod_alpha(i_start, i_end, m)
+				},
+				draw:		function() {
+					// triangle function (looks better than sin IMO)
+					var m = (progress * 2 + 1) % 2
+					m = m <= 1 ? m : 2 - m
+					m = (alpha_max - alpha_min) * m + alpha_min
+					text.mod_alpha(i_start, i_end, m)
+				}
+			})
+		}
+		
+		if (fx.command == "shake") {
+			array_push(effects, {
+				text:		text,
+				i_start:	fx.index_start,
+				i_end:		fx.index_end,
+				increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/4,
+				magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 3,
+				position:	{x: 0, y: 0},
+				progress:	0,
+				reset:		function() {
+					progress = 0
+					position = {x: 0, y: 0}
+				},
+				update:		function(mult = 1) {
+					progress += increment * mult
+					if (progress >= 1) {
+						var rand = random(1)
+						if (magnitude == 0) {
+							if (rand < 0.5) {
+								position.x = 0
+							} else {
+								position.x = 1
+							}
+						} else if (rand < 1/3) {
+							position.x = magnitude * -1
+						} else if (rand < 2/3) {
+							position.x = 0
+						} else {
+							position.x = magnitude
+						}
+						rand = random(1)
+						if (magnitude == 0) {
+							if (rand < 0.5) {
+								position.y = 0
+							} else {
+								position.y = 1
+							}
+						} else if (rand < 1/3) {
+							position.y = magnitude * -1
+						} else if (rand < 2/3) {
+							position.y = 0
+						} else {
+							position.y = magnitude
+						}
+						progress -= 1
+					}
+				},
+				draw:		function() {
+					text.mod_offset_x(i_start, i_end, position.x)
+					text.mod_offset_y(i_start, i_end, position.y)
 				}
 			})
 		}
@@ -214,6 +277,11 @@ function animated_text_update() {
 }
 
 function animated_text_draw(x, y, animated_text) {
-	animated_text.typer.draw()
-	animated_text.text.draw(x, y)
+	with (animated_text) {
+		typer.draw()
+		for (var i = 0; i < array_length(effects); i++) {
+			effects[i].draw()
+		}
+		text.draw(x, y)
+	}
 }
