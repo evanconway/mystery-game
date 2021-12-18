@@ -1,3 +1,34 @@
+function __randomize_position(position, magnitude) {
+	var rand = random(1)
+	if (magnitude == 0) {
+		if (rand < 0.5) {
+			position.x = 0
+		} else {
+			position.x = 1
+		}
+	} else if (rand < 1/3) {
+		position.x = magnitude * -1
+	} else if (rand < 2/3) {
+		position.x = 0
+	} else {
+		position.x = magnitude
+	}
+	rand = random(1)
+	if (magnitude == 0) {
+		if (rand < 0.5) {
+			position.y = 0
+		} else {
+			position.y = 1
+		}
+	} else if (rand < 1/3) {
+		position.y = magnitude * -1
+	} else if (rand < 2/3) {
+		position.y = 0
+	} else {
+		position.y = magnitude
+	}
+}
+
 /// @func Animated_Text(text, *width)
 function Animated_Text() constructor {
 	var parsed = new Parse(argument0)
@@ -185,14 +216,13 @@ function Animated_Text() constructor {
 			Effect data is the same for shake and tremble. But if effect is tremble, instead we create
 			an instance of the effect for each character.
 			*/
-			
 			for (var i = fx.index_start; i <= fx.index_end; i += fx.command == "tremble" ? 1 : fx.index_end) {
 				array_push(effects, {
 					text:		text,
 					i_start:	i,
 					i_end:		fx.command == "tremble"? i : fx.index_end,
 					increment:	array_length(fx.args) > 0 && is_real(fx.args[0]) ? fx.args[0] : 1/4,
-					magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 2,
+					magnitude:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 1,
 					position:	{x: 0, y: 0},
 					progress:	0,
 					reset:		function() {
@@ -202,34 +232,7 @@ function Animated_Text() constructor {
 					update:		function(mult = 1) {
 						progress += increment * mult
 						if (progress >= 1) {
-							var rand = random(1)
-							if (magnitude == 0) {
-								if (rand < 0.5) {
-									position.x = 0
-								} else {
-									position.x = 1
-								}
-							} else if (rand < 1/3) {
-								position.x = magnitude * -1
-							} else if (rand < 2/3) {
-								position.x = 0
-							} else {
-								position.x = magnitude
-							}
-							rand = random(1)
-							if (magnitude == 0) {
-								if (rand < 0.5) {
-									position.y = 0
-								} else {
-									position.y = 1
-								}
-							} else if (rand < 1/3) {
-								position.y = magnitude * -1
-							} else if (rand < 2/3) {
-								position.y = 0
-							} else {
-								position.y = magnitude
-							}
+							__randomize_position(position, magnitude)
 							progress -= 1
 						}
 					},
@@ -237,7 +240,48 @@ function Animated_Text() constructor {
 						text.mod_offset_x(i_start, i_end, position.x)
 						text.mod_offset_y(i_start, i_end, position.y)
 					}
-				})	
+				})
+			}
+		}
+		
+		if (fx.command == "twitch") { 
+			// arg order: num_of_twitches, increment, twitch_time, wait_min, wait_max
+			var num_of_twitches = array_length(fx.args) > 0 ? fx.args[0] : 10
+			for (var i = 0; i < num_of_twitches; i++) {
+				array_push(effects, {
+					text:		text,
+					i_start:	fx.index_start,
+					i_end:		fx.index_end,
+					position:	{x: 0, y: 0},
+					choice:		fx.index_start,
+					increment:	array_length(fx.args) > 1 && is_real(fx.args[1]) ? fx.args[1] : 1/30,
+					magnitude:	array_length(fx.args) > 2 && is_real(fx.args[2]) ? fx.args[2] : 1,
+					time:		array_length(fx.args) > 3 && is_real(fx.args[3]) ? fx.args[3] : 1/30,
+					wait_min:	array_length(fx.args) > 4 && is_real(fx.args[4]) ? fx.args[4] : 0.5,
+					wait_max:	array_length(fx.args) > 5 && is_real(fx.args[5]) ? fx.args[5] : 1,
+					wait:		array_length(fx.args) > 5 && is_real(fx.args[5]) ? fx.args[5] : 1, // not custom parameter, random calculated wait time
+					progress:	0,
+					reset:		function() {
+						progress = 0
+						position = {x: 0, y: 0}
+						choice = fx.index_start
+					},
+					update:		function(mult = 1) {
+						progress += increment * mult
+						if (progress > time + wait) {
+							wait = (random(1) * (wait_max - wait_min)) + wait_min
+							choice = floor(random(1) * (i_end - i_start + 1)) + i_start
+							__randomize_position(position, magnitude)
+							progress = 0
+						}
+					},
+					draw:		function() {
+						if (progress <= time) {
+							text.mod_offset_x(choice, choice, position.x)
+							text.mod_offset_y(choice, choice, position.y)
+						}
+					}
+				})
 			}
 		}
 	}
