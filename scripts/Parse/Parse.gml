@@ -128,4 +128,6 @@ function Parse(_source_string) constructor {
 		}
 		ds_map_delete(fx_map, fx_key)
 	}
+	
+	ds_map_destroy(fx_map)
 }

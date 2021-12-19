@@ -23,4 +23,4 @@ animated_text_update(test)
 animated_text_draw(100, 100, test)
 */
 
-test = new Animated_Text(source_string, 400)
+test = new Animated_Text(source_string, 500)

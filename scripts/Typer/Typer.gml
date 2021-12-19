@@ -1,6 +1,5 @@
 function Typer(_text) constructor {
-	text = _text
-	
+	text = _text // a Text struct
 	linked_list = undefined
 	
 	// only alphas of 1 or 0 can be used
@@ -120,12 +119,12 @@ function Typer(_text) constructor {
 		return text.get_char_at(char_order[index_to_type])
 	}
 	
-	char_effects = ds_map_create()
+	char_effects = array_create(text.get_length(), undefined)
 	for (var i = 0; i < array_length(char_order); i++) {
-		ds_map_add(char_effects, i, {
+		char_effects[i] = {
 			entry:	[],
 			leave:	[]
-		})
+		}
 	}
 	
 	/* 
@@ -145,11 +144,11 @@ function Typer(_text) constructor {
 	effects_leave = [] // same
 	
 	static add_entry_effect = function(index, effect) {
-		array_push(ds_map_find_value(char_effects, index).entry, effect)
+		array_push(char_effects[index].entry, effect)
 	}
 	
 	static add_leave_effect = function(index, effect) {
-		array_push(ds_map_find_value(char_effects, index).leave, effect)
+		array_push(char_effects[index].leave, effect)
 	}
 	
 	for (var i = 0; i < array_length(char_order); i++) {
@@ -193,7 +192,7 @@ function Typer(_text) constructor {
 		var char_index = char_order[index_to_type]
 		set_char_alpha(char_index, 1)
 		if (get_char_to_type() != " ") {
-			var entry_arr = ds_map_find_value(char_effects, char_index).entry
+			var entry_arr = char_effects[char_index].entry
 			for (var i = 0; i < array_length(entry_arr); i++) {
 				
 				// reset effect
@@ -258,7 +257,7 @@ function Typer(_text) constructor {
 		for (var i = 0; i < array_length(effects_entry); i++) {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
-			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
+			var effect = char_effects[index_char].entry[index_effect]
 			effect.update()
 			if (effect.done) {
 				array_delete(effects_entry, i, 1)
@@ -280,7 +279,7 @@ function Typer(_text) constructor {
 		for (var i = 0; i < array_length(effects_entry); i++) {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
-			var effect = ds_map_find_value(char_effects, index_char).entry[index_effect]
+			var effect = char_effects[index_char].entry[index_effect]
 			effect.apply()
 		}
 	}
