@@ -1,7 +1,3 @@
-global.text_random_arr = array_create(power(2, 16))
-for (var i = 0; i < array_length(global.text_random_arr); i++) {
-	global.text_random_arr[i] = random(1)
-}
 
 /// @func Text(string, *width)
 function Text(_string) constructor {
@@ -380,77 +376,6 @@ function Text(_string) constructor {
 			curs = curs.next
 		}
 		curs.style.alpha *= alpha
-	}
-	
-	/*
-	Effects!
-	All effects need at least a start_index, and end_index, an update_count, and an update_increment.
-	The indexes are self explanatory. It's expected that update count will be incremented each frame.
-	The update_increment is the percentage of the cycle each increase in the update count will trigger.
-	For example, if the update increment is 0.1, it will take 10 increments to update_count to perform
-	a full cycle of any given effect. The definition of a cycle varies from effect to effect.
-	*/
-	
-	// utility functions
-	
-	/*
-	Given a magnitude and index in the random array, returns -magnitude, magnitude, or 0 depending on 
-	value in char array. If magnitude is 0, returns 0 or 1. Given index can be greater than length
-	of random array and will account for wrap around.
-	*/
-	static get_rand_offset = function(index, magnitude, allow_zero) {
-		var result = 0
-		var rand = global.text_random_arr[index % array_length(global.text_random_arr)]
-		if (magnitude <= 0) {
-			if (allow_zero) result = rand < 0.5 ? 0 : 1
-			else result = 1
-		} else if (allow_zero) {
-			if (rand < 0.33) result = magnitude * -1
-			else if (rand < 0.66) result = 0
-			else result = magnitude
-		} else {
-			if (rand < 0.5) result = magnitude * -1
-			else result = magnitude
-		}
-		return result
-	}
-	
-	static fx_fade = function(start_index, end_index, update_count, update_increment, alpha_max, alpha_min) {
-		// triangle function (looks better than sin IMO)
-		var m = (update_count * update_increment * 2 + 1) % 2
-		m = m <= 1 ? m : 2 - m
-		m = (alpha_max - alpha_min) * m + alpha_min
-		mod_alpha(start_index, end_index, m)
-	}
-	
-	static fx_shake = function(start_index, end_index, update_count, update_increment, magnitude) {
-		var arr_offset = power(2, 10)
-		for (var i = 0; i < end_index - start_index; i++) {
-			var arr_index = floor(update_count * update_increment) + i * arr_offset
-			var m_x = get_rand_offset(arr_index, magnitude)
-			var m_y = get_rand_offset(arr_index + array_length(global.text_random_arr) / 2, magnitude)
-			mod_offset_x(start_index + i, start_index + i, m_x, true)
-			mod_offset_y(start_index + i, start_index + i, m_y, true)
-		}
-	}
-	
-	static fx_twitch = function(start_index, end_index, update_count, update_increment, magnitude, probability, time, num_of_twitches) {
-		var rand_arr = global.text_random_arr
-		var arr_length = array_length(rand_arr)
-		var update_index = floor(update_count * update_increment)
-		var under_time = ((update_increment * update_count) % 1) < time
-		var offset = power(2, 10)
-		for (var i = 0; i < num_of_twitches; i++) {
-			var perform_twitch = rand_arr[(update_index + offset * i) % arr_length] < probability
-			if (under_time && perform_twitch) {
-				var quarter = floor(arr_length / 4)
-				var twitched_index = floor(rand_arr[(update_index + quarter + offset * i) % arr_length] * (end_index - start_index + 1) + start_index)
-				var offset_x = get_rand_offset((update_index + offset * i + quarter * 2) % arr_length, magnitude)
-				var offset_y = get_rand_offset((update_index + offset * i + arr_length / 2 + quarter * 3) % arr_length, magnitude)
-				mod_offset_x(twitched_index, twitched_index, offset_x, false)
-				mod_offset_y(twitched_index, twitched_index, offset_y, false)
-			}
-		}
 	}
 	
 	static link_can_merge_next = function(link) {
