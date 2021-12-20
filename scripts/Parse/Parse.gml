@@ -47,7 +47,8 @@ function Parse(_source_string) constructor {
 	}
 	
 	effects = []
-	var fx_map = ds_map_create()
+	var marked_map = ds_map_create()	// effects marked as starters like "hover/"
+	var unmarked_arr = []				// effects without starter or ender markers
 	
 	for (var i = 1; i <= string_length(_source_string); i++) {
 		var char = string_char_at(_source_string, i)
@@ -62,46 +63,44 @@ function Parse(_source_string) constructor {
 			var _index_end = _index_start - 1
 			
 			for (var f = 0; f < array_length(parsed); f++) {
-				if (parsed[f].ender && ds_map_exists(fx_map, parsed[f].command)) {
-					var found_fx = ds_map_find_value(fx_map, parsed[f].command)
+				if (parsed[f].ender && ds_map_exists(marked_map, parsed[f].command)) {
+					var found_fx = ds_map_find_value(marked_map, parsed[f].command)
 					array_push(effects, {
 						command:		parsed[f].command,
 						args:			found_fx.args,
 						index_start:	found_fx.index_start,
 						index_end:		_index_end
 					})
-					ds_map_delete(fx_map, parsed[f].command)
-				} else {
-					ds_map_add(fx_map, parsed[f].command, {
+					ds_map_delete(marked_map, parsed[f].command)
+				} else if (parsed[f].marked) {
+					ds_map_add(marked_map, parsed[f].command, {
 						args:			parsed[f].args,
 						index_start:	string_length(result_string),
 						marked:			parsed[f].marked // effect can only be ended by ender, not empty tag
 					})
+				} else {
+					array_push(unmarked_arr, {
+						command:		parsed[f].command,
+						args:			parsed[f].args,
+						index_start:	string_length(result_string)
+					})
 				}
 			}
 			
-			// end all invalid and unmarked effects if empty tag
+			// end all unmarked effects if empty tag
 			if (fx_str == "") {
-				var fx_key = ds_map_find_first(fx_map)
-				var to_delete = []
-				while (fx_key != undefined) {
-					var fx_val = ds_map_find_value(fx_map, fx_key)
-					if (_index_end < fx_val.index_start) {
-						array_push(to_delete, fx_key)
-					} else if (!fx_val.marked) {
-						array_push(effects, {
-							command:		fx_key,
-							args:			fx_val.args,
-							index_start:	fx_val.index_start,
-							index_end:		_index_end
-						})
-						array_push(to_delete, fx_key)
+				for (var k = 0; k < array_length(unmarked_arr); k++) {
+					if (_index_end < unmarked_arr[k].index_start) {
+						show_error("invalid effect found, should this be possible?", true)
 					}
-					fx_key = ds_map_find_next(fx_map, fx_key)
+					array_push(effects, {
+						command:		unmarked_arr[k].command,
+						args:			unmarked_arr[k].args,
+						index_start:	unmarked_arr[k].index_start,
+						index_end:		_index_end
+					})
 				}
-				for (var d = 0; d < array_length(to_delete); d++) {
-					ds_map_delete(fx_map, to_delete[d])
-				}
+				unmarked_arr = []
 			}
 			
 			i = next_pos
@@ -115,9 +114,20 @@ function Parse(_source_string) constructor {
 	}
 	
 	// end all effects
-	while (!ds_map_empty(fx_map)) {
-		var fx_key = ds_map_find_first(fx_map)
-		var fx_val = ds_map_find_value(fx_map, fx_key)
+	for (var k = 0; k < array_length(unmarked_arr); k++) {
+		if (_index_end < unmarked_arr[k].index_start) {
+			show_error("invalid effect found, should this be possible?", true)
+		}
+		array_push(effects, {
+			command:		unmarked_arr[k].command,
+			args:			unmarked_arr[k].args,
+			index_start:	unmarked_arr[k].index_start,
+			index_end:		_index_end
+		})
+	}
+	while (!ds_map_empty(marked_map)) {
+		var fx_key = ds_map_find_first(marked_map)
+		var fx_val = ds_map_find_value(marked_map, fx_key)
 		if (string_length(result_string) - 1 >= fx_val.index_start) {
 			array_push(effects, {
 				command:		fx_key,
@@ -126,8 +136,8 @@ function Parse(_source_string) constructor {
 				index_end:		string_length(result_string) - 1
 			})
 		}
-		ds_map_delete(fx_map, fx_key)
+		ds_map_delete(marked_map, fx_key)
 	}
 	
-	ds_map_destroy(fx_map)
+	ds_map_destroy(marked_map)
 }

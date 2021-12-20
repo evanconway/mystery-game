@@ -20,6 +20,7 @@ function Text(_string) constructor {
 			Y:			0,
 			width:		0,
 			height:		0,
+			line_break:	false	// force line break to occur after this character
 		}
 	}
 	
@@ -48,16 +49,20 @@ function Text(_string) constructor {
 		var parsing_word_end = false
 		for (var i = 0; i < array_length(char_array); i++) {
 			var c = char_array[i]
-			if (c.character == " ") {
+			if (c.line_break) {
+				show_debug_message("hello")
+			}
+			if (c.character == " " && !c.line_break) {
 				// space discovered, beginning of the word end found
 				word_width += c.width
 				parsing_word_end = true
-			} else if (parsing_word_end) {
+			} else if (parsing_word_end || c.line_break) {
 				// not space, but we had found the end of the word? This is a new word! Determine line break
 				if (line_width + word_width > max_width) {
 					line_width = 0
 					line_index++
 				}
+				// assign line index to new word (which is chars with unassigned value -1)
 				var backup = i - 1
 				while (backup >= 0 && char_array[backup].style.line == -1) {
 					char_array[backup].style.line = line_index
@@ -66,8 +71,11 @@ function Text(_string) constructor {
 				line_width += word_width
 				word_width = c.width
 				parsing_word_end = false
+				if (c.line_break) {
+					line_index++
+				}
 			} else {
-				// we were not checking for end end, so this is just another letter in the word. 
+				// we were not checking for word end, so this is just another letter in the word. 
 				word_width += c.width
 			}
 		}
@@ -141,6 +149,8 @@ function Text(_string) constructor {
 	generate_linked_list()
 	
 	// base style setters (end index is inclusive)
+	// must call calculate_char_positions if changes char width or height
+	// all bast setters must call generate linked list
 	
 	static set_base_font = function(start_index, end_index, font) {
 		for (var i = start_index; i <= end_index; i++) {
@@ -162,6 +172,12 @@ function Text(_string) constructor {
 		for (var i = start_index; i <= end_index; i++) {
 			char_array[i].style.scale_y = scale_y
 		}
+		calculate_char_positions()
+		generate_linked_list()
+	}
+	
+	static set_line_break = function(index) {
+		char_array[index].line_break = true
 		calculate_char_positions()
 		generate_linked_list()
 	}

@@ -136,6 +136,11 @@ function Animated_Text() constructor {
 			text.set_base_color(fx.index_start, fx.index_end, make_color_rgb(fx.args[0], fx.args[1], fx.args[2]))
 		}
 		
+		// force line break
+		if (fx.command == "n" || fx.command = "br") {
+			text.set_line_break(fx.index_start)
+		}
+		
 		if (fx.command == "hover") {
 			array_push(effects, {
 				text:		text,
