@@ -119,11 +119,17 @@ function Typer(_text) constructor {
 		return text.get_char_at(char_order[index_to_type])
 	}
 	
-	char_effects = array_create(text.get_length(), undefined)
+	char_data = array_create(text.get_length(), undefined)
 	for (var i = 0; i < array_length(char_order); i++) {
-		char_effects[i] = {
+		char_data[i] = {
 			entry:	[],
-			leave:	[]
+			leave:	[],
+			type_data:	{
+				increment:	0.15,
+				num_chars:	3.3,
+				pause:		3,
+				stop:		5
+			}
 		}
 	}
 	
@@ -144,13 +150,14 @@ function Typer(_text) constructor {
 	effects_leave = [] // same
 	
 	static add_entry_effect = function(index, effect) {
-		array_push(char_effects[index].entry, effect)
+		array_push(char_data[index].entry, effect)
 	}
 	
 	static add_leave_effect = function(index, effect) {
-		array_push(char_effects[index].leave, effect)
+		array_push(char_data[index].leave, effect)
 	}
 	
+	// default rise and fade in effect
 	for (var i = 0; i < array_length(char_order); i++) {
 		add_entry_effect(i, {
 			done:		false,
@@ -192,7 +199,7 @@ function Typer(_text) constructor {
 		var char_index = char_order[index_to_type]
 		set_char_alpha(char_index, 1)
 		if (get_char_to_type() != " ") {
-			var entry_arr = char_effects[char_index].entry
+			var entry_arr = char_data[char_index].entry
 			for (var i = 0; i < array_length(entry_arr); i++) {
 				
 				// reset effect
@@ -213,41 +220,78 @@ function Typer(_text) constructor {
 		return index_to_type >= array_length(char_order)
 	}
 	
+	current_type_data = {
+		increment:	0,
+		num_chars:	0,
+		pause:		0,
+		stop:		0
+	}
+	
+	static set_typing_data_to_index = function(index) {
+		current_type_data.increment = char_data[index].type_data.increment
+		current_type_data.num_chars = char_data[index].type_data.num_chars
+		current_type_data.pause = char_data[index].type_data.pause
+		current_type_data.stop = char_data[index].type_data.stop
+	}
+	
+	static set_char_type_data = function(index, type_data) {
+		char_data[index].type_data = type_data
+	}
+	
+	static typing_data_index_equals_current = function(index) {
+		var compare = char_data[index].type_data
+		if (current_type_data.increment != compare.increment) return false
+		if (current_type_data.num_chars != compare.num_chars) return false
+		if (current_type_data.pause != compare.pause) return false
+		if (current_type_data.stop != compare.stop) return false
+		return true
+	}
+	
 	/*
 	Note that the effects applied to the text are not permenant. You must call the update every
 	frame you draw the text or the text will appear as normal.
 	*/
-	update_value = 0
-	char_value = 0
-	punctuation_timing = true
-	static update = function(increment, num_of_chars) {
-		if (increment <= 0) {
-			num_of_chars = 0
-		}
-		update_value += increment
-		if (update_value >= 1 && !typing_is_finished()) {
-			char_value += num_of_chars
-			for (var i = 0; i < floor(char_value) && index_to_type < array_length(char_order); i++) {
+	update_value = 0	// keeps track of increment additions, start at 0 for instantaneous type at start
+	char_value = 0		// keeps track of num_of_char additions (they could be non-integer)
+	static update = function(mult = 1) {
+		update_value -= current_type_data.increment * mult
+		if (update_value <= 0 && !typing_is_finished()) {
+			char_value += current_type_data.num_chars
+			for (var i = 0; i < floor(char_value) && !typing_is_finished(); i++) {
 				var char = get_char_to_type()
-				while (char == " " && index_to_type < array_length(char_order)) {
+				/*
+					Characters should be typed until i equals floor(char_value), but there are some exceptions.
+					Firstly, all spaces are automatically typed. If new typing data is discovered, the typing will
+					stop on that character, unless it's a space which we still always type all of. If the character
+					is an end or pause mark, we'll stop on that as well.
+				*/
+				
+				// handle spaces
+				while (char == " " && !typing_is_finished()) {
 					type_char()
 					char = get_char_to_type()
 				}
-				char = get_char_to_type()
-				if (punctuation_timing) {
-					if (get_char_to_type() == "." || get_char_to_type() == "!" || get_char_to_type() == "?") {
-						update_value = -2 * num_of_chars
-						i = char_value
-					} if (get_char_to_type() == "," || get_char_to_type() == ";" || get_char_to_type() == ":") {
-						update_value = -1 * num_of_chars
+				
+				if (!typing_is_finished()) {
+					// handle type data changing
+					if (!typing_data_index_equals_current(index_to_type)) {
+						set_typing_data_to_index(index_to_type)
 						i = char_value
 					}
-				}
-				if (!typing_is_finished()) {
+				
+					// handle punctuation
+					if (get_char_to_type() == "," || get_char_to_type() == ";" || get_char_to_type() == ":") {
+						update_value = current_type_data.pause
+						i = char_value
+					}
+					if (get_char_to_type() == "." || get_char_to_type() == "!" || get_char_to_type() == "?") {
+						update_value = current_type_data.stop
+						i = char_value
+					}
 					type_char()
 				}
 			}
-			if (update_value > 0) update_value = 0 // update is reset instead of % 1 to solve bug
+			if (update_value <= 0) update_value = 1
 			audio_play_sound(Sound1, 1, false)
 		}
 		
@@ -257,7 +301,7 @@ function Typer(_text) constructor {
 		for (var i = 0; i < array_length(effects_entry); i++) {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
-			var effect = char_effects[index_char].entry[index_effect]
+			var effect = char_data[index_char].entry[index_effect]
 			effect.update()
 			if (effect.done) {
 				array_delete(effects_entry, i, 1)
@@ -279,7 +323,7 @@ function Typer(_text) constructor {
 		for (var i = 0; i < array_length(effects_entry); i++) {
 			var index_char = effects_entry[i].index_char
 			var index_effect = effects_entry[i].index_effect
-			var effect = char_effects[index_char].entry[index_effect]
+			var effect = char_data[index_char].entry[index_effect]
 			effect.apply()
 		}
 	}
@@ -307,6 +351,7 @@ function Typer(_text) constructor {
 		index_to_type = 0
 		update_value = 0
 		char_value = 0
+		set_typing_data_to_index(index_to_type)
 	}
 	
 	reset()

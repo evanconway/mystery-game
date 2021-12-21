@@ -49,9 +49,6 @@ function Text(_string) constructor {
 		var parsing_word_end = false
 		for (var i = 0; i < array_length(char_array); i++) {
 			var c = char_array[i]
-			if (c.line_break) {
-				show_debug_message("hello")
-			}
 			if (c.character == " " && !c.line_break) {
 				// space discovered, beginning of the word end found
 				word_width += c.width

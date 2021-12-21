@@ -126,7 +126,24 @@ function Animated_Text() constructor {
 	for (var parsed_index = 0; parsed_index < array_length(parsed_effects); parsed_index++) {
 		var fx = parsed_effects[parsed_index]
 		
+		// convert all numerical args from strings to actual numbers
+		for (var i = 0; i < array_length(fx.args); i++) {
+			try {
+				fx.args[i] = real(fx.args[i])
+			}
+		}
+		
 		// typing effects
+		if (fx.command = "type_speed") {
+			for (var i = fx.index_start; i <= fx.index_end; i++) {
+				typer.set_char_type_data(i, {
+					increment:	fx.args[0],
+					num_chars:	fx.args[1],
+					pause:		fx.args[2],
+					stop:		fx.args[3]
+				})
+			}
+		}
 		
 		// regular effects
 		color_to_rgb(fx)
@@ -328,12 +345,12 @@ function animated_text_typing_reset(animated_text) {
 	animated_text.typing = false
 }
 
-/// @func animated_string_update(animated_string, *update_multiplier)
+/// @func animated_text_update(animated_string, *update_multiplier)
 function animated_text_update() {
 	var anim_string = argument0
 	var mult = argument_count > 1 ? argument[1] : 1
 	with (anim_string) {
-		if (typing) typer.update(0.3, 4)
+		if (typing) typer.update(mult)
 		for (var i = 0; i < array_length(effects); i++) {
 			effects[i].update(mult)
 		}
